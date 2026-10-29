@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { site } from "./site";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +15,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Louie Jae Maravillosa — Full-Stack Developer",
-  description: "Portfolio of Louie Jae Maravillosa, Full-Stack Software Developer.",
+  metadataBase: new URL(site.url),
+  title: site.title,
+  description: site.description,
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: site.name,
+    title: site.title,
+    description: site.description,
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: site.title,
+    description: site.description,
+  },
 };
 
 export default function RootLayout({
@@ -29,9 +46,10 @@ export default function RootLayout({
     >
       <body 
         suppressHydrationWarning={true}
-        className="min-h-full flex flex-col bg-[#0a0a0a] text-neutral-100 overflow-x-hidden selection:bg-neutral-800 selection:text-white"
+        className="min-h-full flex flex-col bg-canvas text-neutral-100 overflow-x-hidden"
       >
         {children}
+        <Analytics />
       </body>
     </html>
   );

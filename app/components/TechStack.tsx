@@ -1,40 +1,38 @@
-"use client";
-
-import React from "react";
+import SectionHeading from "./SectionHeading";
 
 export default function TechStack() {
   const stackCategories = [
     {
       category: "Frontend",
-      skills: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Vite", "Bootstrap"],
+      skills: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Vite", "Bootstrap"],
     },
     {
-      category: "Backend & Database",
-      skills: ["Python", "Django", "Django REST Framework", "PHP", "Laravel", "PostgreSQL", "SQLite"],
+      category: "Backend",
+      skills: ["Python", "Django", "Django REST Framework", "PHP", "Laravel", "CodeIgniter"],
     },
     {
-      category: "AI & Workflow Tools",
-      skills: ["Claude Code", "Cursor", "Linux (Ubuntu)", "Nginx", "Git", "Termius SSH"],
+      category: "Database",
+      skills: ["PostgreSQL", "SQLite"],
+    },
+    {
+      category: "DevOps & Tools",
+      skills: ["Linux (Ubuntu)", "Nginx", "Git", "Claude Code", "Cursor"],
     },
   ];
 
   return (
-    <section id="stack" className="space-y-6 pt-4">
-      <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
-        <h2 className="text-xs font-mono uppercase tracking-wider text-neutral-400">
-          03 — Tech Stack
-        </h2>
-      </div>
+    <section id="stack" className="space-y-2 pt-4">
+      <SectionHeading index="03" title="Tech Stack" />
 
-      <div className="space-y-4">
-        {stackCategories.map((cat, i) => (
-          <div key={i} className="p-4 rounded-xl bg-neutral-900/40 border border-neutral-800/60 space-y-3">
-            <h3 className="text-xs font-mono text-neutral-400 uppercase tracking-wide">{cat.category}</h3>
+      <div className="divide-y divide-line">
+        {stackCategories.map((cat) => (
+          <div key={cat.category} className="py-4 grid sm:grid-cols-[9rem_1fr] gap-3 sm:gap-6">
+            <h3 className="text-xs font-mono text-muted uppercase tracking-wide pt-1.5">{cat.category}</h3>
             <div className="flex flex-wrap gap-2">
-              {cat.skills.map((skill, idx) => (
+              {cat.skills.map((skill) => (
                 <span
-                  key={idx}
-                  className="px-2.5 py-1 rounded-md text-xs font-mono bg-neutral-800/80 text-neutral-300 border border-neutral-700/60"
+                  key={skill}
+                  className="px-2.5 py-1 rounded-md text-xs font-mono text-neutral-300 border border-line hover:border-neutral-600 transition"
                 >
                   {skill}
                 </span>

@@ -1,7 +1,21 @@
 @import "tailwindcss";
 
+/*
+  60-30-10 palette
+  60 — canvas: the page background everything sits on
+  30 — surface, line, muted: cards, hairlines, and secondary text
+  10 — accent: white, reserved for the few things that should catch the eye (monochrome)
+*/
+@theme {
+  --color-canvas: #0a0a0a;
+  --color-surface: #141414;
+  --color-line: #262626;
+  --color-muted: #a3a3a3;
+  --color-accent: #fafafa;
+}
+
 :root {
-  --background: #0a0a0a;
+  --background: var(--color-canvas);
   --foreground: #ededed;
 }
 
@@ -16,10 +30,27 @@ html, body {
   padding: 0;
 }
 
+/* Keep anchored sections clear of the sticky navbar */
+html {
+  scroll-padding-top: 5rem;
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
+
+::selection {
+  background: color-mix(in srgb, var(--color-accent) 25%, transparent);
+  color: #fff;
+}
+
 /* Custom Sleek Dark Scrollbar */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #262626 #0a0a0a;
+  scrollbar-color: var(--color-line) var(--color-canvas);
 }
 
 ::-webkit-scrollbar {
@@ -27,11 +58,11 @@ html, body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: var(--color-canvas);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #262626;
+  background: var(--color-line);
   border-radius: 3px;
 }
 
