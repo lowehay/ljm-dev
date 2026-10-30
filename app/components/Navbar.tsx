@@ -2,20 +2,39 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import ThemeToggle from "./ThemeToggle";
+import BackgroundToggle from "./BackgroundToggle";
+import MusicToggle from "./MusicToggle";
+import { site } from "../site";
+import GooeyNav from "./GooeyNav/GooeyNav";
+import { useTheme } from "./useTheme";
 
 const NAV_ITEMS = [
+  { id: "services", label: "Services" },
   { id: "projects", label: "Projects" },
   { id: "experience", label: "Experience" },
   { id: "stack", label: "Stack" },
   { id: "contact", label: "Contact" },
 ];
 
+// The gooey pill always sits on an item, so the desktop nav adds Home for the hero at the top of the page
+const GOOEY_ITEMS = [{ id: "home", label: "Home" }, ...NAV_ITEMS];
+
+// Neutral frame colors so the pill nav stays monochrome (the component's defaults are tinted)
+const GOOEY_FRAME = {
+  dark: { "--gn-frame": "rgba(23, 23, 23, 0.7)", "--gn-ink": "#fafafa", "--gn-muted": "rgba(250, 250, 250, 0.6)" },
+  light: { "--gn-frame": "rgba(240, 240, 240, 0.8)", "--gn-ink": "#0a0a0a", "--gn-muted": "rgba(10, 10, 10, 0.6)" },
+};
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
   const headerRef = useRef<HTMLElement>(null);
+  // After a nav click, ignore scroll tracking briefly so the pill doesn't hop through every section on the way
+  const lockUntilRef = useRef(0);
+  const theme = useTheme() ?? "dark";
+  const gooeyIndex = Math.max(0, GOOEY_ITEMS.findIndex((item) => item.id === activeId));
 
   const handleNavClick = () => {
     setIsOpen(false);
@@ -45,6 +64,7 @@ export default function Navbar() {
     let frame = 0;
     const update = () => {
       frame = 0;
+      if (performance.now() < lockUntilRef.current) return;
       const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
       if (atBottom) return setActiveId(NAV_ITEMS[NAV_ITEMS.length - 1].id);
 
@@ -71,55 +91,67 @@ export default function Navbar() {
   }, []);
 
   return (
-    <header ref={headerRef} className="sticky top-0 z-50 backdrop-blur-md bg-canvas/80 border-b border-line/60 py-4 mb-8">
-      <div className="max-w-3xl mx-auto px-6 flex items-center justify-between">
-        <Link href="/" className="font-semibold text-lg tracking-tight text-white hover:opacity-80 transition">
-          LJM<span className="text-muted">.dev</span>
+    <header ref={headerRef} className="sticky top-0 z-50 py-3 mb-8">
+      <div className="max-w-5xl mx-auto px-6 flex items-center justify-between">
+        <Link href="/" className="font-semibold text-lg tracking-tight text-fg hover:opacity-80 transition">
+          Lforlowe<span className="text-muted">.dev</span>
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden sm:flex items-center gap-6 text-sm text-muted">
-          {NAV_ITEMS.map(({ id, label }) => (
-            <a
-              key={id}
-              href={`#${id}`}
-              aria-current={activeId === id ? "location" : undefined}
-              className={`relative py-1 hover:text-white transition ${activeId === id ? "text-white" : ""}`}
-            >
-              {label}
-              {activeId === id && (
-                <motion.span
-                  layoutId="nav-underline"
-                  className="absolute left-0 right-0 -bottom-0.5 h-px bg-accent"
-                  transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                />
-              )}
-            </a>
-          ))}
-        </nav>
+        <div className="flex items-center gap-2 md:gap-4">
+          {/* Desktop Nav: gooey pill follows the section in view */}
+          {/* Wrapper handles hiding: GooeyNav's unlayered CSS would override a `hidden` class on the nav itself */}
+          <div className="hidden md:block">
+            <GooeyNav
+              items={GOOEY_ITEMS.map(({ id, label }) => ({ label, href: `#${id}` }))}
+              activeIndex={gooeyIndex}
+              onChange={(index) => {
+                lockUntilRef.current = performance.now() + 1000;
+                setActiveId(GOOEY_ITEMS[index].id);
+              }}
+              theme={theme}
+              color={theme === "light" ? "#0a0a0a" : "#fafafa"}
+              size="sm"
+              frame
+              particleCount={15}
+              spread={56}
+              animationTime={600}
+              timeVariance={300}
+              gooeyness={0.5}
+              wobble={0.5}
+              hoverEffect
+              style={GOOEY_FRAME[theme]}
+            />
+          </div>
 
-        {/* Mobile Hamburger Button */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="sm:hidden p-2 text-muted hover:text-white transition"
-          aria-label="Toggle Menu"
-          aria-expanded={isOpen}
-          aria-controls="mobile-menu"
-        >
-          {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+          <div className="flex items-center">
+            {site.music && <MusicToggle src={site.music} />}
+            <BackgroundToggle />
+            <ThemeToggle />
+          </div>
+
+          {/* Mobile Hamburger Button */}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden p-2 text-muted hover:text-fg transition"
+            aria-label="Toggle Menu"
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
+          >
+            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Dropdown Menu */}
       {isOpen && (
-        <nav id="mobile-menu" className="sm:hidden absolute top-full left-0 w-full bg-canvas/95 backdrop-blur-xl border-b border-line px-6 py-4 flex flex-col gap-4 text-sm text-neutral-300 shadow-2xl">
+        <nav id="mobile-menu" className="md:hidden absolute top-full left-0 w-full bg-canvas/95 backdrop-blur-xl border-b border-line px-6 py-4 flex flex-col gap-4 text-sm text-fg-soft shadow-2xl">
           {NAV_ITEMS.map(({ id, label }) => (
             <a
               key={id}
               href={`#${id}`}
               onClick={handleNavClick}
               aria-current={activeId === id ? "location" : undefined}
-              className={`hover:text-white transition py-1 ${activeId === id ? "text-white" : ""}`}
+              className={`hover:text-fg transition py-1 ${activeId === id ? "text-fg" : ""}`}
             >
               {label}
             </a>

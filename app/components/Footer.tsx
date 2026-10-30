@@ -1,37 +1,31 @@
-import { Mail, ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import CopyEmailButton from "./CopyEmailButton";
-import SectionHeading from "./SectionHeading";
+import EmailLink from "./EmailLink";
+import Section from "./Section";
+import LocalTime from "./LocalTime";
+import ShinyText from "./effects/ShinyText";
 import { site } from "../site";
 
 export default function Footer() {
   const links = [
-    { label: "github", href: site.github },
-    { label: "linkedin", href: site.linkedin },
-    { label: "résumé", href: site.resume },
+    { label: "github", href: site.github, external: true },
+    { label: "linkedin", href: site.linkedin, external: true },
+    { label: "résumé", href: site.resume, external: false },
   ].filter((l) => l.href);
 
   return (
-    <footer id="contact" className="pt-4 space-y-6">
-      <SectionHeading index="04" title="Contact" />
-
+    <Section id="contact" index="05" title="Contact" as="footer" className="space-y-6 pt-4 lg:pt-0">
       <div className="space-y-2">
-        <h3 className="text-xl font-bold text-white">Let&apos;s build something great together.</h3>
+        <h3 className="text-xl font-bold text-fg">
+          <ShinyText>Let&apos;s build something great together.</ShinyText>
+        </h3>
         <p className="text-sm text-muted leading-relaxed">
           For freelance inquiries, full-stack collabs, or general questions, feel free to reach out directly via email.
         </p>
       </div>
 
-      <div className="flex gap-2">
-        <a
-          href={`mailto:${site.email}`}
-          className="flex-1 min-w-0 flex items-center justify-between p-4 rounded-xl bg-surface border border-line hover:border-neutral-600 transition group"
-        >
-          <div className="flex items-center gap-3 min-w-0">
-            <Mail className="w-4 h-4 shrink-0 text-muted" />
-            <span className="text-xs font-mono text-neutral-200 truncate">{site.email}</span>
-          </div>
-          <ArrowRight className="w-4 h-4 shrink-0 text-muted group-hover:translate-x-1 group-hover:text-accent transition" />
-        </a>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+        <EmailLink email={site.email} />
         <CopyEmailButton email={site.email} />
       </div>
 
@@ -40,9 +34,8 @@ export default function Footer() {
           <a
             key={l.label}
             href={l.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-white transition group"
+            {...(l.external && { target: "_blank", rel: "noopener noreferrer" })}
+            className="flex items-center gap-1 py-1 hover:text-fg transition group"
           >
             <span>{l.label}</span>
             <ArrowUpRight className="w-3.5 h-3.5 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
@@ -51,13 +44,13 @@ export default function Footer() {
       </div>
 
       <p className="text-sm text-muted leading-relaxed">
-        <span className="text-neutral-300">Off the clock:</span> recreational volleyball, tuning my Yamaha Aerox, PC games on a controller, and cooking Filipino street food.
+        <span className="text-fg-soft">Off the clock:</span> squeezing every frame out of my gaming laptop, watching anime, and getting lost in YouTube house builds and room makeovers.
       </p>
 
       <div className="flex items-center justify-between pt-6 border-t border-line text-xs text-muted font-mono">
         <span>© 2026 Louie Jae Maravillosa</span>
-        <span>South Cotabato, PH</span>
+        <LocalTime />
       </div>
-    </footer>
+    </Section>
   );
 }

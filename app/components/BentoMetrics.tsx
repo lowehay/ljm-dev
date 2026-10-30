@@ -1,11 +1,16 @@
 import { Briefcase, Rocket, Layers } from "lucide-react";
+import CountUp from "./effects/CountUp";
 
 export default function BentoMetrics() {
   const metrics = [
     {
       icon: Briefcase,
       label: "Experience",
-      value: "3+ Years",
+      value: (
+        <>
+          <CountUp to={3} />+ Years
+        </>
+      ),
       desc: "Shipping to production since 2023",
     },
     {
@@ -30,7 +35,7 @@ export default function BentoMetrics() {
             <Icon className="w-3.5 h-3.5 text-muted" />
             <span className="text-xs font-mono uppercase tracking-wider text-muted">{label}</span>
           </div>
-          <div className="text-lg font-semibold text-white tracking-tight">{value}</div>
+          <div className="text-lg font-semibold text-fg tracking-tight">{value}</div>
           <div className="text-sm text-muted mt-0.5">{desc}</div>
         </div>
       ))}

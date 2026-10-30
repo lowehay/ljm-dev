@@ -13,18 +13,35 @@ import {
   useTransform,
   useVelocity,
 } from "framer-motion";
+import HalftoneReveal from "./HalftoneReveal/HalftoneReveal";
+import { useTheme } from "./useTheme";
 
+// The pixel/photo layers fill the space they're given (the ProfileCard photo area), which handles tilt, glare, and parallax
 const LENS_RADIUS = 110;
-const TILT_DEG = 8;
-const PARALLAX_PX = 6;
 const COLS = 12;
 const ROWS = 14;
-const IMAGE_SIZES = "(max-width: 640px) 224px, 256px";
+// Dissolving away ripples out slowly; coming back is quicker so the photo returns promptly
+const DISSOLVE = { spread: 0.5, duration: 0.45 };
+const REASSEMBLE = { spread: 0.25, duration: 0.3 };
+// Resting tiles are scaled up slightly so neighbors overlap and no hairline seams show
+const TILE_SCALE = 1.04;
+const IMAGE_SIZES = "320px";
 
-// Optimized URL for the pixel avatar, used as the background of each dissolve tile
+// The top layer (photo) shows by default. Hovering reveals the base layer (pixel art) through the lens;
+// clicking dissolves the photo into a halftone print, whose dots swell back into the photo under the cursor.
+const TOP_IMAGE = "/avatar-real.png";
+const BASE_IMAGE = "/avatar-pixel.png";
+
+// Halftone paper matches the card's photo backdrop in each theme
+const HALFTONE = {
+  dark: { inkColor: "#e5e5e5", paperColor: "#262626" },
+  light: { inkColor: "#0a0a0a", paperColor: "#fafafa" },
+};
+
+// Optimized URL for the top image, used as the background of each dissolve tile
 const {
-  props: { src: pixelTileSrc },
-} = getImageProps({ src: "/avatar-pixel.png", alt: "", width: 320, height: 320 });
+  props: { src: topTileSrc },
+} = getImageProps({ src: TOP_IMAGE, alt: "", width: 640, height: 640 });
 
 const TILES = Array.from({ length: COLS * ROWS }, (_, i) => ({
   col: i % COLS,
@@ -44,17 +61,16 @@ export default function AvatarReveal() {
   const containerRef = useRef<HTMLButtonElement>(null);
   const prefersReducedMotion = useReducedMotion();
   const isInView = useInView(containerRef, { once: true, amount: 0.6 });
+  const theme = useTheme() ?? "dark";
 
   const [isRevealed, setIsRevealed] = useState(false);
   // Tiles stay mounted from the first click until they've fully reassembled
   const [tilesActive, setTilesActive] = useState(false);
   const [origin, setOrigin] = useState({ x: 0.5, y: 0.5 });
 
-  // Pointer position in px (for the lens) and normalized 0..1 (for tilt/parallax)
+  // Pointer position in px, which the lens follows
   const pointerX = useMotionValue(0);
   const pointerY = useMotionValue(0);
-  const normX = useMotionValue(0.5);
-  const normY = useMotionValue(0.5);
 
   // Lens trails the cursor on a spring
   const lensX = useSpring(pointerX, { stiffness: 300, damping: 30, mass: 0.6 });
@@ -86,15 +102,8 @@ export default function AvatarReveal() {
   );
 
   const maskImage = useMotionTemplate`radial-gradient(circle ${lensRadius}px at ${lensX}px ${lensY}px, transparent 0%, rgba(0,0,0,0.3) 75%, black 100%)`;
-  const sheen = useMotionTemplate`radial-gradient(circle 160px at ${lensX}px ${lensY}px, rgba(255,255,255,0.09), transparent 70%)`;
-  const sheenOpacity = useTransform(lensBase, [0, LENS_RADIUS], [0, 1]);
-
-  // 3D tilt toward the cursor, with the photo layer drifting for depth
-  const tiltSpring = { stiffness: 200, damping: 20 };
-  const rotateX = useSpring(useTransform(normY, [0, 1], [TILT_DEG, -TILT_DEG]), tiltSpring);
-  const rotateY = useSpring(useTransform(normX, [0, 1], [-TILT_DEG, TILT_DEG]), tiltSpring);
-  const photoX = useSpring(useTransform(normX, [0, 1], [PARALLAX_PX, -PARALLAX_PX]), tiltSpring);
-  const photoY = useSpring(useTransform(normY, [0, 1], [PARALLAX_PX, -PARALLAX_PX]), tiltSpring);
+  // Inverse of the top mask: the base only shows through the lens, so its silhouette never peeks out around the top image
+  const baseMaskImage = useMotionTemplate`radial-gradient(circle ${lensRadius}px at ${lensX}px ${lensY}px, black 0%, rgba(0,0,0,0.7) 75%, transparent 100%)`;
 
   const getLocalPoint = (clientX: number, clientY: number) => {
     const rect = containerRef.current!.getBoundingClientRect();
@@ -120,19 +129,13 @@ export default function AvatarReveal() {
 
   const handlePointerMove = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (e.pointerType === "touch") return;
-    const { x, y, width, height } = getLocalPoint(e.clientX, e.clientY);
+    const { x, y } = getLocalPoint(e.clientX, e.clientY);
     pointerX.set(x);
     pointerY.set(y);
-    if (!prefersReducedMotion) {
-      normX.set(x / width);
-      normY.set(y / height);
-    }
   };
 
   const handlePointerLeave = () => {
     lensTarget.set(0);
-    normX.set(0.5);
-    normY.set(0.5);
   };
 
   const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -150,7 +153,7 @@ export default function AvatarReveal() {
 
   // Warm the cache so the tiles aren't blank on the first click
   useEffect(() => {
-    new window.Image().src = pixelTileSrc;
+    new window.Image().src = topTileSrc;
   }, []);
 
   // On touch devices, drift the lens across the face once so visitors discover the reveal
@@ -177,9 +180,12 @@ export default function AvatarReveal() {
   }, [isInView, prefersReducedMotion, pointerX, pointerY, lensX, lensY, lensTarget]);
 
   // Tiles ripple outward from the click point; the farthest one finishes last
+  const tileTiming = isRevealed ? DISSOLVE : REASSEMBLE;
   const tileDelay = (col: number, row: number) =>
-    Math.hypot((col + 0.5) / COLS - origin.x, (row + 0.5) / ROWS - origin.y) * 0.5;
+    Math.hypot((col + 0.5) / COLS - origin.x, (row + 0.5) / ROWS - origin.y) * tileTiming.spread;
   const maxTileDelay = Math.max(...TILES.map((t) => tileDelay(t.col, t.row)));
+  // The halftone print stays mounted from the click until the photo has fully reassembled over it
+  const showHalftone = isRevealed || tilesActive;
 
   return (
     <button
@@ -190,28 +196,53 @@ export default function AvatarReveal() {
       onPointerLeave={handlePointerLeave}
       onClick={handleClick}
       aria-pressed={isRevealed}
-      aria-label="Toggle between pixel avatar and real photo"
-      className="block w-full h-64 sm:h-72 rounded-2xl cursor-pointer [perspective:900px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+      aria-label="Toggle between photo and halftone print"
+      className="block w-full h-full cursor-pointer focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-accent"
     >
-      <motion.div
-        style={{ rotateX, rotateY }}
-        className="relative w-full h-full overflow-hidden rounded-2xl bg-surface/60 border border-line"
-      >
-        {/* Base Layer: Real Photo, drifting slightly opposite the cursor for depth */}
-        <motion.div style={{ x: photoX, y: photoY }} className="absolute inset-0">
+      <div className="relative w-full h-full">
+        {/* Base Layer: Pixel Avatar, shown only through the lens and hidden in halftone mode */}
+        <motion.div
+          style={{ WebkitMaskImage: baseMaskImage, maskImage: baseMaskImage }}
+          // The image layers ignore the pointer so the halftone beneath can track the cursor
+          className="absolute inset-0 pointer-events-none"
+          initial={false}
+          animate={{ opacity: showHalftone ? 0 : 1 }}
+          transition={{ duration: 0 }}
+        >
           <Image
-            src="/avatar-real.png"
-            alt="Louie Jae Maravillosa"
+            src={BASE_IMAGE}
+            alt=""
             fill
             sizes={IMAGE_SIZES}
-            className="object-contain object-center"
+            className="object-cover object-bottom"
             priority
           />
         </motion.div>
 
-        {/* Top Layer: Pixel Avatar, masked out by the spotlight lens */}
+        {/* Halftone Layer: revealed by the click dissolve; hovering swells the dots back into the photo */}
+        {showHalftone && (
+          <div className="absolute inset-0">
+            <HalftoneReveal
+              src={TOP_IMAGE}
+              fit="cover"
+              mode="mono"
+              shape="dot"
+              cellSize={5}
+              angle={45}
+              {...HALFTONE[theme]}
+              revealRadius={70}
+              softness={0.6}
+              linger={1.2}
+              // A burst would fire on the same click that switches modes, so it's off
+              clickBurst={false}
+              intro
+            />
+          </div>
+        )}
+
+        {/* Top Layer: Real Photo, masked out by the spotlight lens */}
         <motion.div
-          className="absolute inset-0"
+          className="absolute inset-0 pointer-events-none"
           style={{ WebkitMaskImage: maskImage, maskImage }}
           initial={false}
           animate={{ opacity: tilesActive || isRevealed ? 0 : 1 }}
@@ -219,16 +250,16 @@ export default function AvatarReveal() {
           transition={{ duration: prefersReducedMotion ? 0.3 : 0 }}
         >
           <Image
-            src="/avatar-pixel.png"
-            alt=""
+            src={TOP_IMAGE}
+            alt="Louie Jae Maravillosa"
             fill
             sizes={IMAGE_SIZES}
-            className="object-contain object-center"
+            className="object-cover object-bottom"
             priority
           />
         </motion.div>
 
-        {/* Dissolve Layer: the pixel avatar split into tiles that pop out (and back) from the click point */}
+        {/* Dissolve Layer: the top image split into tiles that pop out (and back) from the click point */}
         {tilesActive && (
           <div className="absolute inset-0 pointer-events-none" aria-hidden>
             {TILES.map(({ col, row }, i) => {
@@ -243,21 +274,21 @@ export default function AvatarReveal() {
                     width: `${100 / COLS}%`,
                     height: `${100 / ROWS}%`,
                   }}
-                  initial={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 1, scale: TILE_SCALE }}
                   animate={
                     isRevealed
-                      ? { opacity: [1, 1, 0], scale: [1, 1.25, 0] }
-                      : { opacity: [0, 1, 1], scale: [0, 1.25, 1] }
+                      ? { opacity: [1, 1, 0], scale: [TILE_SCALE, 1.25, 0] }
+                      : { opacity: [0, 1, 1], scale: [0, 1.15, TILE_SCALE] }
                   }
-                  transition={{ duration: 0.45, delay, ease: "easeOut" }}
+                  transition={{ duration: tileTiming.duration, delay, ease: "easeOut" }}
                   onAnimationComplete={() => {
                     if (!isRevealed && delay === maxTileDelay) setTilesActive(false);
                   }}
                 >
                   <div
-                    className="absolute bg-no-repeat bg-center bg-contain"
+                    className="absolute bg-no-repeat bg-bottom bg-cover"
                     style={{
-                      backgroundImage: `url(${pixelTileSrc})`,
+                      backgroundImage: `url(${topTileSrc})`,
                       left: `${-col * 100}%`,
                       top: `${-row * 100}%`,
                       width: `${COLS * 100}%`,
@@ -270,12 +301,7 @@ export default function AvatarReveal() {
           </div>
         )}
 
-        {/* Sheen: soft light following the lens */}
-        <motion.div
-          className="absolute inset-0 pointer-events-none mix-blend-screen"
-          style={{ backgroundImage: sheen, opacity: sheenOpacity }}
-        />
-      </motion.div>
+      </div>
     </button>
   );
 }
