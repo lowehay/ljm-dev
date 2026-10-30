@@ -2,8 +2,15 @@ import { ArrowUpRight } from "lucide-react";
 import Section from "./Section";
 import { projects } from "../data";
 import Spotlight from "./effects/Spotlight";
+import ContributionGraph from "./ContributionGraph";
+import { getCombinedContributions } from "../github";
+import { site } from "../site";
 
-export default function Projects() {
+const GITHUB_USER = site.github.split("/").pop() ?? "";
+
+export default async function Projects() {
+  const contributions = await getCombinedContributions();
+
   return (
     <Section id="projects" index="02" title="Featured Projects">
       <div className="divide-y divide-line">
@@ -44,6 +51,12 @@ export default function Projects() {
           );
         })}
       </div>
+
+      {contributions && (
+        <div className="pt-6 mt-1 border-t border-line">
+          <ContributionGraph days={contributions} username={GITHUB_USER} />
+        </div>
+      )}
     </Section>
   );
 }

@@ -47,6 +47,7 @@ export const projects: Project[] = [] = [
     category: "Creative Frontend",
     desc: "Landing page for a concept specialty coffee roaster. A 3D coffee bean travels with you across sections on scroll, and a roast selector restyles it from light to dark.",
     tech: ["Next.js", "Three.js", "GSAP", "Framer Motion"],
+    live: "https://aura-brew-topaz.vercel.app/",
     repo: "https://github.com/lowehay/aura-brew",
   },
   {

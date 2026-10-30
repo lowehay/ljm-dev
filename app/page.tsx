@@ -8,7 +8,7 @@ import TechStack from "./components/TechStack";
 import Footer from "./components/Footer";
 import Reveal from "./components/Reveal";
 import GradualBlur from "./components/effects/GradualBlur";
-import Wordmark from "./components/Wordmark";
+import TechMarquee from "./components/TechMarquee";
 import { site } from "./site";
 import { company, education, stackCategories } from "./data";
 
@@ -46,7 +46,7 @@ export default function Home() {
       <main className="max-w-5xl mx-auto px-6 space-y-16 lg:space-y-20">
         <Hero />
         <Reveal><BentoMetrics /></Reveal>
-        <Reveal><Wordmark /></Reveal>
+        <Reveal><TechMarquee /></Reveal>
         <Reveal><Services /></Reveal>
         <Reveal><Projects /></Reveal>
         <Reveal><Experience /></Reveal>

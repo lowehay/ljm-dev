@@ -41,7 +41,7 @@ export default async function Image() {
 
         <div style={{ display: "flex", flexDirection: "column", flex: 1 }}>
           <div style={{ fontSize: 26, color: "#a3a3a3", letterSpacing: 2 }}>
-            LJM.DEV
+            {site.title}
           </div>
           <div style={{ fontSize: 64, fontWeight: 700, color: "#ffffff", marginTop: 16, lineHeight: 1.1 }}>
             {site.name}
