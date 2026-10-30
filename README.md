@@ -1,4 +1,4 @@
-# LJM.dev
+# Lforlowe.dev\
 
 Personal portfolio of **Louie Jae Maravillosa**, Full-Stack Developer.
 

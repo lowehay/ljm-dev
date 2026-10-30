@@ -1,0 +1,22 @@
+/* Tech marquee: slow scroll with faded edges, pauses on hover (TechMarquee) */
+.tech-marquee {
+  mask-image: linear-gradient(to right, transparent, #000 12%, #000 88%, transparent);
+}
+
+.tech-marquee-track {
+  animation: tech-marquee 60s linear infinite;
+}
+
+.tech-marquee:hover .tech-marquee-track {
+  animation-play-state: paused;
+}
+
+@keyframes tech-marquee {
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tech-marquee-track {
+    animation: none;
+  }
+}
