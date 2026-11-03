@@ -28,7 +28,7 @@ export default function CopyEmailButton({ email }: { email: string }) {
       type="button"
       onClick={handleCopy}
       aria-label={copied ? "Email copied" : "Copy email address"}
-      className="flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-line hover:border-line-strong text-xs font-mono text-muted hover:text-fg transition"
+      className="shrink-0 flex items-center justify-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-lg border border-line hover:border-line-strong text-xs font-mono text-muted hover:text-fg transition"
     >
       <AnimatePresence mode="wait" initial={false}>
         <motion.span
@@ -42,12 +42,13 @@ export default function CopyEmailButton({ email }: { email: string }) {
           {copied ? (
             <>
               <Check className="w-3.5 h-3.5 text-accent" />
-              Copied!
+              {/* Icon only on phones so the button fits beside the email */}
+              <span className="hidden sm:inline">Copied!</span>
             </>
           ) : (
             <>
               <Copy className="w-3.5 h-3.5" />
-              Copy
+              <span className="hidden sm:inline">Copy</span>
             </>
           )}
         </motion.span>

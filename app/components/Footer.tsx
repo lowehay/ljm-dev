@@ -1,10 +1,14 @@
 import { ArrowUpRight } from "lucide-react";
+import ContactForm from "./ContactForm";
 import CopyEmailButton from "./CopyEmailButton";
 import EmailLink from "./EmailLink";
 import Section from "./Section";
 import LocalTime from "./LocalTime";
 import ShinyText from "./effects/ShinyText";
 import { site } from "../site";
+
+// The form appears once RESEND_API_KEY is set (see app/actions/contact.ts); until then it's email only
+const contactFormEnabled = Boolean(process.env.RESEND_API_KEY);
 
 export default function Footer() {
   const links = [
@@ -20,14 +24,35 @@ export default function Footer() {
           <ShinyText>Let&apos;s build something great together.</ShinyText>
         </h3>
         <p className="text-sm text-muted leading-relaxed">
-          For freelance inquiries, full-stack collabs, or general questions, feel free to reach out directly via email.
+          {contactFormEnabled
+            ? "Tell me what you're working on and I'll get back to you soon."
+            : "For freelance inquiries, full-stack collabs, or general questions, feel free to reach out directly via email."}
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-        <EmailLink email={site.email} />
-        <CopyEmailButton email={site.email} />
-      </div>
+      {contactFormEnabled ? (
+        <>
+          <ContactForm />
+
+          {/* Email stays available, but as the secondary option under the form */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center gap-3 text-xs font-mono text-muted">
+              <span className="h-px flex-1 bg-line" />
+              or email me directly
+              <span className="h-px flex-1 bg-line" />
+            </div>
+            <div className="flex items-center gap-3">
+              <EmailLink email={site.email} compact />
+              <CopyEmailButton email={site.email} />
+            </div>
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <EmailLink email={site.email} />
+          <CopyEmailButton email={site.email} />
+        </div>
+      )}
 
       <div className="flex flex-wrap gap-6 text-xs font-mono text-muted">
         {links.map((l) => (

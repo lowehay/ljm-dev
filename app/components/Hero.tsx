@@ -24,6 +24,17 @@ export default function Hero() {
         {/* Right Side: Headline, Balanced Bio & Links */}
         <div className="flex-1 space-y-4 text-center md:text-left">
           <div className="space-y-3">
+            {site.availability && (
+              <p className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-line bg-surface/60 text-xs font-mono text-muted">
+                {/* A slow pulse on the dot; it stays still for visitors who prefer reduced motion */}
+                <span className="relative flex w-2 h-2">
+                  <span className="absolute inset-0 rounded-full bg-fg opacity-60 motion-safe:animate-ping" />
+                  <span className="relative w-2 h-2 rounded-full bg-fg" />
+                </span>
+                {site.availability}
+              </p>
+            )}
+
             <BlurText
               as="h1"
               text={site.name}

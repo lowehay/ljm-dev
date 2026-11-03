@@ -25,6 +25,8 @@ export interface GooeyNavProps {
   gooeyness?: number;
   wobble?: number;
   hoverEffect?: boolean;
+  /** Set false to skip WebGL and use the plain pill fallback */
+  webgl?: boolean;
   className?: string;
   // CSS custom properties such as --gn-frame are allowed alongside regular styles
   style?: CSSProperties & Record<`--${string}`, string>;

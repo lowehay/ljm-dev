@@ -16,8 +16,9 @@ export default async function Projects() {
       <div className="divide-y divide-line">
         {projects.map((p) => {
           const links = [
-            { label: "live demo", href: p.live },
-            { label: "source", href: p.repo },
+            { label: "case study", href: p.caseStudy, external: false },
+            { label: "live demo", href: p.live, external: true },
+            { label: "source", href: p.repo, external: true },
           ].filter((l) => l.href);
 
           return (
@@ -36,8 +37,7 @@ export default async function Projects() {
                       <a
                         key={l.label}
                         href={l.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        {...(l.external && { target: "_blank", rel: "noopener noreferrer" })}
                         className="flex items-center gap-1 py-1 hover:text-fg transition group"
                       >
                         <span>{l.label}</span>

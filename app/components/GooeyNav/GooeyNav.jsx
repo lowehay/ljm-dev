@@ -223,6 +223,7 @@ const GooeyNav = ({
   gooeyness = 0.5,
   wobble = 0.5,
   hoverEffect = true,
+  webgl = true,
   className = '',
   style
 }) => {
@@ -274,7 +275,8 @@ const GooeyNav = ({
     if (!stage || !canvas || !list || !overlay || !fallback) return;
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const gl = canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: false });
+    // `webgl={false}` uses the plain pill fallback, e.g. on devices without a GPU
+    const gl = webgl ? canvas.getContext('webgl2', { alpha: true, premultipliedAlpha: true, antialias: false }) : null;
     const pipeline = gl ? build(gl) : null;
     fallback.style.display = pipeline ? 'none' : 'block';
     canvas.style.display = pipeline ? 'block' : 'none';
@@ -736,7 +738,7 @@ const GooeyNav = ({
       }
       engineRef.current = null;
     };
-  }, [items.length]);
+  }, [items.length, webgl]);
 
   useEffect(() => {
     engineRef.current?.go(current);

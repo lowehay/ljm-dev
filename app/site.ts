@@ -15,8 +15,11 @@ export const site = {
     (productionHost ? `https://${productionHost}` : "http://localhost:3000"),
   email: "louiejaemaravillosa24@gmail.com",
   github: "https://github.com/lowehay",
+  // Status line above the name in the hero; empty hides it
+  availability: "Available for freelance work",
   linkedin: "", // e.g. "https://www.linkedin.com/in/your-handle"
   resume: "/resume", // printable page generated from app/data.ts
-  // Background music: put the file in public/music/ and set this, e.g. "/music/background.mp3"; empty hides the button
-  music: "/music/lofi-loop.wav",
+  // Background music: put the file in public/music/ and set this, e.g. "/music/background.mp3"; empty hides the button.
+  // To loop seamlessly it needs the padding from scripts/encode-loop.mjs
+  music: "/music/lofi-loop.mp3",
 };

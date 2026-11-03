@@ -8,6 +8,7 @@ import BackgroundToggle from "./BackgroundToggle";
 import MusicToggle from "./MusicToggle";
 import { site } from "../site";
 import GooeyNav from "./GooeyNav/GooeyNav";
+import { useHardwareWebGL } from "./useHardwareWebGL";
 import { useTheme } from "./useTheme";
 
 const NAV_ITEMS = [
@@ -34,6 +35,7 @@ export default function Navbar() {
   // After a nav click, ignore scroll tracking briefly so the pill doesn't hop through every section on the way
   const lockUntilRef = useRef(0);
   const theme = useTheme() ?? "dark";
+  const hardwareWebGL = useHardwareWebGL();
   const gooeyIndex = Math.max(0, GOOEY_ITEMS.findIndex((item) => item.id === activeId));
 
   const handleNavClick = () => {
@@ -119,6 +121,8 @@ export default function Navbar() {
               gooeyness={0.5}
               wobble={0.5}
               hoverEffect
+              // Without a GPU the gooey shader stalls the page, so use the plain pills
+              webgl={hardwareWebGL === true}
               style={GOOEY_FRAME[theme]}
             />
           </div>

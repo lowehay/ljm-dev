@@ -8,6 +8,8 @@ export type Project = {
   // Optional links; a project without either renders as a plain row
   live?: string;
   repo?: string;
+  // Path of a case study page in this site
+  caseStudy?: string;
 };
 
 export const services = [
@@ -33,7 +35,15 @@ export const services = [
   },
 ];
 
-export const projects: Project[] = [] = [
+// How a project with me runs, shown under Services
+export const workSteps = [
+  { step: "Understand", desc: "We talk through what you need, who it's for, and what done looks like." },
+  { step: "Build", desc: "I work in small steps and share progress early, so you can steer as it takes shape." },
+  { step: "Launch", desc: "Your app goes live on fast hosting with your own domain." },
+  { step: "Support", desc: "I stay around after launch for fixes and the next round of improvements." },
+];
+
+export const projects: Project[] = [
   {
     title: "Coffee Shop Management System",
     category: "Full-Stack Application",
@@ -41,6 +51,7 @@ export const projects: Project[] = [] = [
     tech: ["React", "Django REST", "PostgreSQL", "JWT", "Cloudinary"],
     live: "https://coffee-shop-self-sigma.vercel.app",
     repo: "https://github.com/lowehay/Coffee_Shop",
+    caseStudy: "/projects/coffee-shop",
   },
   {
     title: "Aura Brew",
@@ -53,13 +64,13 @@ export const projects: Project[] = [] = [
   {
     title: "School Records Management System",
     category: "School Administration",
-    desc: "Records management system for schools that centralizes student and academic records behind role-based access.",
+    desc: "Records management system for schools that centralizes student and academic records behind role-based access. Together with the LMS, it serves 5,000+ users.",
     tech: ["React", "Django REST", "PostgreSQL", "Tailwind"],
   },
   {
     title: "LMS Platform",
     category: "Education Platform",
-    desc: "Multi-tenant learning portal featuring course management, gradebooks, and role-based access control.",
+    desc: "Multi-tenant learning portal featuring course management, gradebooks, and role-based access control. Together with the records system, it serves 5,000+ users.",
     tech: ["React", "Django REST", "PostgreSQL", "Tailwind"],
   },
 ];

@@ -4,76 +4,86 @@ import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 
 const VOLUME = 0.35;
-const FADE_MS = 800;
+const FADE_S = 0.8;
+
+// The MP3 holds the loop with a quarter second of its own end before it and its start after it
+// (scripts/encode-loop.mjs), so this window loops seamlessly whatever padding the browser's decoder adds
+const LOOP_START = 0.25;
+const LOOP_LENGTH = 48;
+
+type Player = { ctx: AudioContext; gain: GainNode; ready: Promise<void> };
 
 // Background music the visitor turns on themselves (browsers block audio that starts on its own).
-// The track loops, fades in and out instead of cutting, and isn't downloaded until the first click.
+// It plays through Web Audio, which loops without the gap an <audio loop> leaves in an MP3,
+// fades in and out instead of cutting, and isn't downloaded until the first click.
 export default function MusicToggle({ src }: { src: string }) {
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const fadeRef = useRef(0);
-  // What the visitor last asked for; play() resolves asynchronously, so this can change before it does
+  const playerRef = useRef<Player | null>(null);
+  // What the visitor last asked for; loading and resuming are async, so this can change before they finish
   const wantRef = useRef(false);
   const [playing, setPlaying] = useState(false);
   const [failed, setFailed] = useState(false);
 
   // Stop the music if the navbar unmounts
-  useEffect(
-    () => () => {
-      cancelAnimationFrame(fadeRef.current);
-      audioRef.current?.pause();
-    },
-    []
-  );
+  useEffect(() => () => void playerRef.current?.ctx.close(), []);
 
-  const fadeTo = (audio: HTMLAudioElement, target: number, done?: () => void) => {
-    cancelAnimationFrame(fadeRef.current);
-    const from = audio.volume;
-    const start = performance.now();
-    const step = (now: number) => {
-      // The first frame's timestamp can be slightly earlier than `start`, so clamp both progress and volume
-      const t = Math.min(1, Math.max(0, (now - start) / FADE_MS));
-      audio.volume = Math.min(1, Math.max(0, from + (target - from) * t));
-      if (t < 1) fadeRef.current = requestAnimationFrame(step);
-      else done?.();
-    };
-    fadeRef.current = requestAnimationFrame(step);
+  const createPlayer = (): Player => {
+    // The context is created inside the click so browsers allow it to make sound
+    const ctx = new AudioContext();
+    const gain = ctx.createGain();
+    gain.gain.value = 0;
+    gain.connect(ctx.destination);
+
+    const ready = fetch(src)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Music request failed: ${res.status}`);
+        return res.arrayBuffer();
+      })
+      .then((data) => ctx.decodeAudioData(data))
+      .then((buffer) => {
+        const source = ctx.createBufferSource();
+        source.buffer = buffer;
+        source.loop = true;
+        source.loopStart = LOOP_START;
+        source.loopEnd = LOOP_START + LOOP_LENGTH;
+        source.connect(gain);
+        source.start(0, LOOP_START);
+      });
+
+    return { ctx, gain, ready };
+  };
+
+  const fadeTo = ({ ctx, gain }: Player, target: number) => {
+    const now = ctx.currentTime;
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(gain.gain.value, now);
+    gain.gain.linearRampToValueAtTime(target, now + FADE_S);
   };
 
   const toggle = () => {
-    let audio = audioRef.current;
-    if (!audio) {
-      audio = new Audio(src);
-      audio.loop = true;
-      audio.volume = 0;
-      // The file is missing or can't be decoded
-      audio.addEventListener("error", () => {
-        wantRef.current = false;
-        setFailed(true);
-        setPlaying(false);
-      });
-      audioRef.current = audio;
-    }
-    const track = audio;
+    const player = (playerRef.current ??= createPlayer());
 
     if (wantRef.current) {
       wantRef.current = false;
       setPlaying(false);
-      fadeTo(track, 0, () => track.pause());
+      fadeTo(player, 0);
+      // Suspend after the fade so the page isn't keeping the audio device busy, unless it was turned back on
+      setTimeout(() => {
+        if (!wantRef.current) void player.ctx.suspend();
+      }, FADE_S * 1000);
       return;
     }
 
     wantRef.current = true;
     setPlaying(true);
-    track
-      .play()
+    Promise.all([player.ready, player.ctx.resume()])
       .then(() => {
         // Only fade in if the visitor hasn't turned it back off while the track was loading
-        if (wantRef.current) fadeTo(track, VOLUME);
+        if (wantRef.current) fadeTo(player, VOLUME);
       })
-      .catch((error: DOMException) => {
-        // Pausing before playback starts aborts the request; that's not a failure
-        if (error.name === "AbortError") return;
+      .catch(() => {
+        // The file is missing or can't be decoded
         wantRef.current = false;
+        setFailed(true);
         setPlaying(false);
       });
   };

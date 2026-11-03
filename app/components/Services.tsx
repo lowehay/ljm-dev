@@ -1,5 +1,5 @@
 import Section from "./Section";
-import { services } from "../data";
+import { services, workSteps } from "../data";
 import Spotlight from "./effects/Spotlight";
 
 export default function Services() {
@@ -14,7 +14,20 @@ export default function Services() {
         ))}
       </div>
 
-      <p className="pt-2 text-sm text-muted">
+      <div className="pt-4 space-y-4">
+        <span className="text-xs font-mono text-muted">How I work</span>
+        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {workSteps.map((p, i) => (
+            <li key={p.step} className="space-y-1 border-t border-line pt-3">
+              <span className="text-xs font-mono text-muted">0{i + 1}</span>
+              <h3 className="text-sm font-semibold text-fg">{p.step}</h3>
+              <p className="text-sm text-muted leading-relaxed">{p.desc}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
+
+      <p className="pt-4 text-sm text-muted">
         Need something not listed?{" "}
         <a href="#contact" className="text-fg underline underline-offset-4 decoration-line-strong hover:decoration-fg transition">
           Tell me about it

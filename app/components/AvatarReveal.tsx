@@ -38,7 +38,7 @@ const HALFTONE = {
   light: { inkColor: "#0a0a0a", paperColor: "#fafafa" },
 };
 
-// Optimized URL for the top image, used as the background of each dissolve tile
+// Optimized URL for the top image, used by the dissolve tiles and the halftone
 const {
   props: { src: topTileSrc },
 } = getImageProps({ src: TOP_IMAGE, alt: "", width: 640, height: 640 });
@@ -223,7 +223,8 @@ export default function AvatarReveal() {
         {showHalftone && (
           <div className="absolute inset-0">
             <HalftoneReveal
-              src={TOP_IMAGE}
+              // The optimized copy, so a click doesn't download the full-size original
+              src={topTileSrc}
               fit="cover"
               mode="mono"
               shape="dot"

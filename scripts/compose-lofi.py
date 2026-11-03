@@ -1,4 +1,4 @@
-"""Synthesize the original lo-fi chiptune loop in public/music/ (pure Python, no deps). Run: python3 scripts/compose-lofi.py public/music/lofi-loop.wav"""
+"""Synthesize the original lo-fi chiptune loop as a WAV (pure Python, no deps), then encode it with scripts/encode-loop.mjs. Run: python3 scripts/compose-lofi.py lofi-loop.wav"""
 import math
 import random
 import struct
