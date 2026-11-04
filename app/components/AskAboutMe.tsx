@@ -7,6 +7,7 @@ import { site } from "../site";
 import { OPEN_ASK_EVENT } from "./events";
 import PromptBar from "./PromptBar/PromptBar";
 import LatticeLoader from "./LatticeLoader/LatticeLoader";
+import ChatHandoff from "./ChatHandoff";
 
 type Message = { role: "user" | "model"; text: string };
 
@@ -19,11 +20,13 @@ const COMMANDS = [
   { key: "ai", name: "/ai", description: "AI work", prompt: "Has he worked with AI?" },
   { key: "projects", name: "/projects", description: "Featured projects", prompt: "What are his best projects?" },
   { key: "hire", name: "/hire", description: "Availability and contact", prompt: "Is he available for work, and how do I reach him?" },
+  { key: "now", name: "/now", description: "What he's up to lately", prompt: "What is Louie working on right now?" },
 ];
 
 
 // Floating "Ask about me" chat. Answers come from Gemini via /api/ask, limited to the site's own content.
-export default function AskAboutMe() {
+// `canSend`: the contact form can email (RESEND_API_KEY is set), so the chat can be sent to Louie from here
+export default function AskAboutMe({ canSend }: { canSend: boolean }) {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [pending, setPending] = useState(false);
@@ -177,6 +180,9 @@ export default function AskAboutMe() {
                   )}
                 </div>
               )}
+
+              {/* After the first answer, offer to send the conversation to Louie */}
+              {!pending && messages.some((m) => m.role === "model") && <ChatHandoff messages={messages} canSend={canSend} />}
             </div>
 
             <div className="p-3 border-t border-line">

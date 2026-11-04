@@ -135,3 +135,35 @@ export const stackCategories = [
 // The "Off the clock" line in the footer; the AI chat can mention it too
 export const hobbies =
   "squeezing every frame out of my gaming laptop, watching anime, and getting lost in YouTube house builds and room makeovers.";
+
+// Client FAQ, shown before the Contact section and given to the AI chat. These are my working terms; keep them current.
+export const faqs = [
+  {
+    q: "How do we get started?",
+    a: "Send me a message or use the project scoper. We'll have a short call about what you need, then I'll send a written scope with the timeline and a fixed price. Work starts once you approve it. From you, I need your goals, any content or branding you already have, and someone who can answer questions along the way.",
+  },
+  {
+    q: "How do you charge?",
+    a: "A fixed price for the whole project, agreed before we start, so there are no surprise bills. 50% is paid upfront to begin, and the rest on delivery or across milestones.",
+  },
+  {
+    q: "How long will my project take?",
+    a: "It depends on what it needs. The project scoper gives you a rough timeline in a few clicks, and I confirm the real one in the written scope.",
+  },
+  {
+    q: "What happens after launch?",
+    a: "Every project includes 30 days of free fixes after launch: if something I built doesn't work as agreed, I fix it at no cost. After that, I offer paid maintenance for updates and new features.",
+  },
+  {
+    q: "How will we communicate?",
+    a: "Whatever suits you: email for updates and decisions, video calls on Google Meet or Zoom for the kickoff and check-ins, and Messenger, Viber, Slack, or Discord for quick questions. You'll see progress early and often.",
+  },
+  {
+    q: "Do you work with clients outside the Philippines?",
+    a: "Yes. I work remotely with clients in any time zone and overlap a few hours for calls. I'm based in the Philippines (UTC+8).",
+  },
+  {
+    q: "How fast do you reply?",
+    a: "Within 24 hours. Messages through the contact form, the project scoper, or the chat all come straight to my inbox.",
+  },
+];

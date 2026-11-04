@@ -6,6 +6,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowUpRight,
   Briefcase,
+  Calculator,
+  Clock,
   Code2,
   Copy,
   FileText,
@@ -41,6 +43,8 @@ const SECTIONS = [
   { id: "projects", label: "Projects" },
   { id: "experience", label: "Experience" },
   { id: "stack", label: "Tech stack" },
+  { id: "notes", label: "Notes section" },
+  { id: "faq", label: "FAQ" },
   { id: "contact", label: "Contact" },
 ];
 
@@ -76,6 +80,8 @@ export default function CommandPalette({ askEnabled }: { askEnabled: boolean }) 
           keywords: `project ${p.tech.join(" ")}`,
           run: () => router.push(p.caseStudy!),
         })),
+      { id: "scope", label: "Scope your project", group: "Go to", icon: Calculator, keywords: "estimate timeline quote hire plan", run: () => router.push("/scope") },
+      { id: "now", label: "Now", group: "Go to", icon: Clock, keywords: "currently working lately", run: () => router.push("/now") },
       { id: "notes", label: "Notes", group: "Go to", icon: NotebookPen, keywords: "blog writing articles", run: () => router.push("/notes") },
       ...posts.map((p) => ({
         id: `note-${p.slug}`,

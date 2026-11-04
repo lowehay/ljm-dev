@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { site } from "./site";
 import { projects } from "./data";
 import { posts } from "./notes/posts";
+import { now } from "./now/now";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
@@ -22,6 +23,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         changeFrequency: "yearly" as const,
         priority: 0.7,
       })),
+    { url: `${site.url}/scope`, changeFrequency: "monthly", priority: 0.7 },
+    { url: `${site.url}/now`, lastModified: now.updated, changeFrequency: "monthly", priority: 0.5 },
     { url: `${site.url}/notes`, changeFrequency: "monthly", priority: 0.6 },
     ...posts.map((p) => ({
       url: `${site.url}/notes/${p.slug}`,

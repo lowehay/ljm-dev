@@ -19,6 +19,8 @@ const NAV_ITEMS = [
   { id: "projects", label: "Projects" },
   { id: "experience", label: "Experience" },
   { id: "stack", label: "Stack" },
+  { id: "notes", label: "Notes" },
+  { id: "faq", label: "FAQ" },
   { id: "contact", label: "Contact" },
 ];
 
@@ -102,10 +104,10 @@ export default function Navbar() {
           Lforlowe<span className="text-muted">.dev</span>
         </Link>
 
-        <div className="flex items-center gap-2 md:gap-4">
-          {/* Desktop Nav: gooey pill follows the section in view */}
+        <div className="flex items-center gap-2 min-[900px]:gap-4">
+          {/* Desktop Nav: gooey pill follows the section in view. From 900px, the width all eight items need on one line */}
           {/* Wrapper handles hiding: GooeyNav's unlayered CSS would override a `hidden` class on the nav itself */}
-          <div className="hidden md:block">
+          <div className="hidden min-[900px]:block">
             <GooeyNav
               items={GOOEY_ITEMS.map(({ id, label }) => ({ label, href: `#${id}` }))}
               activeIndex={gooeyIndex}
@@ -151,7 +153,7 @@ export default function Navbar() {
           {/* Mobile Hamburger Button */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="md:hidden p-2 text-muted hover:text-fg transition"
+            className="min-[900px]:hidden p-2 text-muted hover:text-fg transition"
             aria-label="Toggle Menu"
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
@@ -171,7 +173,7 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden absolute inset-x-0 top-0 -z-10 pt-16 pb-6 px-6 bg-canvas/55 backdrop-blur-2xl border-b border-line/70"
+            className="min-[900px]:hidden absolute inset-x-0 top-0 -z-10 pt-16 pb-6 px-6 bg-canvas/55 backdrop-blur-2xl border-b border-line/70"
           >
             <ul className="flex flex-col">
               {NAV_ITEMS.map(({ id, label }, i) => (

@@ -11,6 +11,16 @@ export type ContactState = {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Where on the site the message came from, so the email subject says what kind it is
+const SOURCES: Record<string, string> = {
+  form: "Portfolio message",
+  scoper: "Project scope",
+  chat: "Chat conversation",
+};
+// Only known sources; anything else a request sends (including names like "constructor") is a plain message
+const sourceLabel = (source: FormDataEntryValue | null) =>
+  typeof source === "string" && Object.hasOwn(SOURCES, source) ? SOURCES[source] : SOURCES.form;
+
 // Emails a message from the contact form to site.email through Resend (https://resend.com).
 // Needs RESEND_API_KEY. Until the sending domain is verified in Resend, the default sender only
 // delivers to the address the Resend account was created with, so sign up with site.email.
@@ -20,6 +30,12 @@ export async function sendContactMessage(_prev: ContactState, formData: FormData
     email: String(formData.get("email") ?? "").trim(),
     message: String(formData.get("message") ?? "").trim(),
   };
+  // The chat handoff sends the conversation and an optional note separately; the email gets both
+  if (formData.get("source") === "chat") {
+    const note = String(formData.get("note") ?? "").trim();
+    const conversation = String(formData.get("conversation") ?? "").trim();
+    values.message = `${note ? `Note: ${note}\n\n` : ""}Conversation from the "Ask about me" chat:\n\n${conversation}`;
+  }
 
   // Hidden field that people never see; bots that fill every input get a fake success
   if (formData.get("website")) return { status: "sent", message: "Thanks! I'll get back to you soon." };
@@ -48,7 +64,7 @@ export async function sendContactMessage(_prev: ContactState, formData: FormData
         to: [site.email],
         reply_to: values.email,
         // Line breaks are stripped so the name can't add lines to the subject
-        subject: `Portfolio message from ${values.name.replace(/[\r\n]+/g, " ")}`,
+        subject: `${sourceLabel(formData.get("source"))} from ${values.name.replace(/[\r\n]+/g, " ")}`,
         text: `${values.message}\n\n— ${values.name} <${values.email}>`,
       }),
     });

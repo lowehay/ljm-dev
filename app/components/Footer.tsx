@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import ContactForm from "./ContactForm";
 import CopyEmailButton from "./CopyEmailButton";
@@ -17,10 +18,11 @@ export default function Footer() {
     { label: "linkedin", href: site.linkedin, external: true },
     { label: "résumé", href: site.resume, external: false },
     { label: "notes", href: "/notes", external: false },
+    { label: "now", href: "/now", external: false },
   ].filter((l) => l.href);
 
   return (
-    <Section id="contact" index="06" title="Contact" as="footer" className="space-y-6 pt-4 lg:pt-0">
+    <Section id="contact" index="07" title="Contact" as="footer" className="space-y-6 pt-4 lg:pt-0">
       <div className="space-y-2">
         <h3 className="text-xl font-bold text-fg">
           <ShinyText>Let&apos;s build something great together.</ShinyText>
@@ -29,6 +31,13 @@ export default function Footer() {
           {contactFormEnabled
             ? "Tell me what you're working on and I'll get back to you soon."
             : "For freelance inquiries, full-stack collabs, or general questions, feel free to reach out directly via email."}
+        </p>
+        <p className="text-sm text-muted">
+          Not sure what you need yet?{" "}
+          <Link href="/scope" className="text-fg underline underline-offset-4 decoration-line-strong hover:decoration-fg transition">
+            Scope your project
+          </Link>{" "}
+          for a rough timeline first.
         </p>
       </div>
 

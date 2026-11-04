@@ -6,6 +6,7 @@ import Projects from "./components/Projects";
 import Experience from "./components/Experience";
 import TechStack from "./components/TechStack";
 import Notes from "./components/Notes";
+import Faq from "./components/Faq";
 import Footer from "./components/Footer";
 import Reveal from "./components/Reveal";
 import GradualBlur from "./components/effects/GradualBlur";
@@ -53,6 +54,7 @@ export default function Home() {
         <Reveal><Experience /></Reveal>
         <Reveal><TechStack /></Reveal>
         <Reveal><Notes /></Reveal>
+        <Reveal><Faq /></Reveal>
         <Reveal><Footer /></Reveal>
       </main>
     </div>

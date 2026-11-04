@@ -1,4 +1,7 @@
 import { site } from "./site";
+import { now } from "./now/now";
+import { posts } from "./notes/posts";
+import { faqs } from "./data";
 import { company, education, hobbies, projects, roles, services, stackCategories, workSteps } from "./data";
 
 // Everything the "Ask about me" assistant is allowed to know, built from the same content the site shows.
@@ -35,6 +38,19 @@ export function buildFacts() {
     ...stackCategories.map((c) => `- ${c.category}: ${c.skills.join(", ")}`),
     "",
     `Outside work: ${hobbies}`,
+    "",
+    `What he's doing now (updated ${now.updated}, ${site.url}/now):`,
+    ...now.items.map((i) => `- ${i.label}: ${i.text}`),
+    "",
+    "Notes he has written:",
+    ...posts.map((p) => `- ${p.title}: ${p.summary} ${site.url}/notes/${p.slug}`),
+    "",
+    `Reply time: he replies ${site.replyWithin}.`,
+    "",
+    "Working terms (client FAQ, his own answers):",
+    ...faqs.map((f) => `- ${f.q} ${f.a}`),
+    "",
+    `Project scoper: visitors can pick what they want built at ${site.url}/scope, get a rough timeline (not a price), and send it to Louie. Suggest it when someone asks how long a project takes or what it would cost.`,
   ];
   return lines.filter((line, i, all) => line !== "" || all[i - 1] !== "").join("\n");
 }

@@ -74,3 +74,57 @@ export async function getCombinedContributions(): Promise<ContributionDay[] | nu
   }
   return days;
 }
+
+export type ActivitySummary = {
+  total30: number; // contributions in the last 30 days, all accounts
+  activeDays30: number;
+  streak: number; // consecutive days with contributions, ending on the latest day (or the day before it)
+  last30: number[]; // daily counts, oldest first, for a small bar chart
+};
+
+// Totals for the /now page, from the same combined calendar as the heat map (so private work counts, unnamed).
+// "Today" is the calendar's last day, which keeps the result stable inside the cache.
+export async function getActivitySummary(): Promise<ActivitySummary | null> {
+  const days = await getCombinedContributions();
+  if (!days?.length) return null;
+
+  const last30 = days.slice(-30).map((d) => d.count);
+  let streak = 0;
+  // A day with nothing yet doesn't break the streak until it's over
+  let i = days.length - 1;
+  if (days[i].count === 0) i--;
+  for (; i >= 0 && days[i].count > 0; i--) streak++;
+
+  return {
+    total30: last30.reduce((sum, n) => sum + n, 0),
+    activeDays30: last30.filter((n) => n > 0).length,
+    streak,
+    last30,
+  };
+}
+
+// The personal account is public on the site already; repositories from the work account are private and never listed
+const PUBLIC_ACCOUNT = "lowehay";
+
+export type RecentRepo = { name: string; url: string; language: string | null; pushedAt: string };
+
+// Most recently pushed public repositories of the personal account (no forks, no profile README repo)
+export async function getRecentRepos(limit = 3): Promise<RecentRepo[]> {
+  "use cache";
+  cacheLife("hours");
+
+  try {
+    const res = await fetch(`https://api.github.com/users/${PUBLIC_ACCOUNT}/repos?sort=pushed&per_page=10`, {
+      headers: { Accept: "application/vnd.github+json" },
+    });
+    if (!res.ok) return [];
+    const repos: { name: string; html_url: string; language: string | null; pushed_at: string; fork: boolean }[] =
+      await res.json();
+    return repos
+      .filter((r) => !r.fork && r.name.toLowerCase() !== PUBLIC_ACCOUNT.toLowerCase())
+      .slice(0, limit)
+      .map((r) => ({ name: r.name, url: r.html_url, language: r.language, pushedAt: r.pushed_at }));
+  } catch {
+    return [];
+  }
+}

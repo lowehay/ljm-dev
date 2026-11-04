@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import Section from "./Section";
 import { services, workSteps } from "../data";
 import Spotlight from "./effects/Spotlight";
@@ -27,13 +29,22 @@ export default function Services() {
         </ol>
       </div>
 
-      <p className="pt-4 text-sm text-muted">
-        Need something not listed?{" "}
-        <a href="#contact" className="text-fg underline underline-offset-4 decoration-line-strong hover:decoration-fg transition">
-          Tell me about it
-        </a>
-        .
-      </p>
+      <div className="pt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+        <Link
+          href="/scope"
+          className="inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-fg text-canvas text-sm font-medium hover:opacity-85 transition group"
+        >
+          Scope your project
+          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
+        <p className="text-sm text-muted">
+          Need something not listed?{" "}
+          <a href="#contact" className="text-fg underline underline-offset-4 decoration-line-strong hover:decoration-fg transition">
+            Tell me about it
+          </a>
+          .
+        </p>
+      </div>
     </Section>
   );
 }

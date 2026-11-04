@@ -69,7 +69,7 @@ export default function RootLayout({
         </div>
         <CommandPalette askEnabled={askEnabled} />
         {/* The chat appears once GEMINI_API_KEY is set (see app/api/ask/route.ts) */}
-        {askEnabled && <AskAboutMe />}
+        {askEnabled && <AskAboutMe canSend={Boolean(process.env.RESEND_API_KEY)} />}
         <Analytics />
       </body>
     </html>
