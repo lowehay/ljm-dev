@@ -2,9 +2,11 @@ import { SYSTEM_PROMPT } from "../../ask-facts";
 
 // "Ask about me" chat, answered by Google Gemini from the portfolio's own content (app/ask-facts.ts).
 // Needs GEMINI_API_KEY; GEMINI_MODEL overrides the model.
-// The "-latest" aliases follow Google's current Flash models, so the chat doesn't break when a version is retired.
-// If the main model is overloaded (Google answers 429/503 under high demand), the lighter model is tried once.
-const MODELS = [process.env.GEMINI_MODEL ?? "gemini-flash-latest", "gemini-flash-lite-latest"];
+// The "-latest" aliases follow Google's current models, so the chat doesn't break when a version is retired.
+// Flash-Lite answers these short factual questions in about a second and has more free-tier headroom; full Flash
+// is the backup when Lite is overloaded (429/503), errors, or doesn't answer in time.
+const MODELS = [process.env.GEMINI_MODEL ?? "gemini-flash-lite-latest", "gemini-flash-latest"];
+const ATTEMPT_TIMEOUT_MS = 12_000;
 
 const MAX_MESSAGES = 12; // six back-and-forths
 const MAX_CHARS = 500; // per message
@@ -65,16 +67,26 @@ export async function POST(request: Request) {
 
   try {
     let res: Response | undefined;
+    const failures: string[] = [];
     for (const model of MODELS) {
-      res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
-        method: "POST",
-        headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
-        body,
-        signal: AbortSignal.timeout(25_000),
-      });
-      if (res.status !== 429 && res.status !== 503) break;
+      try {
+        res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+          method: "POST",
+          headers: { "x-goog-api-key": apiKey, "Content-Type": "application/json" },
+          body,
+          signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS),
+        });
+      } catch (error) {
+        // Timed out or the network failed: try the next model
+        failures.push(`${model}: ${error instanceof Error ? error.message : error}`);
+        res = undefined;
+        continue;
+      }
+      if (res.ok) break;
+      failures.push(`${model}: ${res.status} ${(await res.text()).slice(0, 300)}`);
+      res = undefined;
     }
-    if (!res?.ok) throw new Error(`Gemini responded ${res?.status}: ${await res?.text()}`);
+    if (!res) throw new Error(`Gemini failed: ${failures.join(" | ")}`);
 
     const data = await res.json();
     const reply = (data.candidates?.[0]?.content?.parts ?? [])
