@@ -3,6 +3,7 @@ import HeroCard from "./HeroCard";
 import BlurText from "./BlurText/BlurText";
 import RotatingText from "./effects/RotatingText";
 import Magnet from "./effects/Magnet";
+import SplitFlapText from "./SplitFlapText/SplitFlapText";
 import { site } from "../site";
 
 export default function Hero() {
@@ -25,14 +26,28 @@ export default function Hero() {
         <div className="flex-1 space-y-4 text-center md:text-left">
           <div className="space-y-3">
             {site.availability && (
-              <p className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-line bg-surface/60 text-xs font-mono text-muted">
+              <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-line bg-surface/60 text-xs font-mono text-muted">
                 {/* A slow pulse on the dot; it stays still for visitors who prefer reduced motion */}
                 <span className="relative flex w-2 h-2">
                   <span className="absolute inset-0 rounded-full bg-fg opacity-60 motion-safe:animate-ping" />
                   <span className="relative w-2 h-2 rounded-full bg-fg" />
                 </span>
-                {site.availability}
-              </p>
+                {/* Flips into place like an airport board when the page loads, then stays put */}
+                <SplitFlapText
+                  text={site.availability}
+                  loop={false}
+                  padTo={site.availability.length}
+                  tileStyle="minimal"
+                  depth={0}
+                  fontSize={12}
+                  gap={0}
+                  tileRadius={2}
+                  tileColor="transparent"
+                  textColor="var(--color-muted)"
+                  stagger={0.03}
+                  flipsPerChar={5}
+                />
+              </div>
             )}
 
             <BlurText

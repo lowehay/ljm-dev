@@ -3,6 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { site } from "./site";
 import SiteBackground from "./components/SiteBackground";
+import SiteClickSpark from "./components/SiteClickSpark";
+import CommandPalette from "./components/CommandPalette";
+import AskAboutMe from "./components/AskAboutMe";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,6 +41,9 @@ export const metadata: Metadata = {
 // Applies a saved light theme before first paint so there's no dark flash
 const themeScript = `try{if(localStorage.getItem("theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}`;
 
+// Read at build time, like the contact form's key
+const askEnabled = Boolean(process.env.GEMINI_API_KEY);
+
 export default function RootLayout({
   children,
 }: {
@@ -58,7 +64,12 @@ export default function RootLayout({
       >
         <SiteBackground />
         {/* Content sits above the fixed pixel background */}
-        <div className="relative z-10 flex flex-1 flex-col">{children}</div>
+        <div className="relative z-10 flex flex-1 flex-col">
+          <SiteClickSpark>{children}</SiteClickSpark>
+        </div>
+        <CommandPalette askEnabled={askEnabled} />
+        {/* The chat appears once GEMINI_API_KEY is set (see app/api/ask/route.ts) */}
+        {askEnabled && <AskAboutMe />}
         <Analytics />
       </body>
     </html>

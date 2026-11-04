@@ -215,7 +215,7 @@ export default function AvatarReveal() {
             fill
             sizes={IMAGE_SIZES}
             className="object-cover object-bottom"
-            priority
+            // Only seen through the hover lens, so it loads normally and leaves the bandwidth to the photo
           />
         </motion.div>
 
@@ -256,7 +256,9 @@ export default function AvatarReveal() {
             fill
             sizes={IMAGE_SIZES}
             className="object-cover object-bottom"
-            priority
+            // The photo is the page's largest element (LCP): fetch it before scripts, not as a low-priority preload
+            loading="eager"
+            fetchPriority="high"
           />
         </motion.div>
 

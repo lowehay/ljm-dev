@@ -8,7 +8,7 @@ const STORAGE_KEY = "background";
 const DEFAULT: Background = "pixel";
 const listeners = new Set<() => void>();
 
-const read = (): Background => {
+export const getBackground = (): Background => {
   try {
     return localStorage.getItem(STORAGE_KEY) === "grain" ? "grain" : DEFAULT;
   } catch {
@@ -37,5 +37,5 @@ export function setBackground(next: Background) {
 
 // The visitor's chosen animated background; null on the server until the client knows
 export function useBackground(): Background | null {
-  return useSyncExternalStore(subscribe, read, () => null);
+  return useSyncExternalStore(subscribe, getBackground, () => null);
 }

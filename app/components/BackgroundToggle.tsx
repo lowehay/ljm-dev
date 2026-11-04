@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import WarmTooltip from "./WarmTooltip/WarmTooltip";
 import { Grid3x3, Waves } from "lucide-react";
 import { setBackground, useBackground } from "./useBackground";
 
@@ -11,11 +12,11 @@ export default function BackgroundToggle() {
   const label = next === "grain" ? "Switch to gradient background" : "Switch to pixel background";
 
   return (
+    <WarmTooltip content={label} side="bottom" surfaceColor="var(--color-fg)" inkColor="var(--color-canvas)" size="sm">
     <button
       type="button"
       onClick={() => setBackground(next)}
       aria-label={label}
-      title={label}
       className="p-2 text-muted hover:text-fg transition"
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -32,5 +33,6 @@ export default function BackgroundToggle() {
         </motion.span>
       </AnimatePresence>
     </button>
+    </WarmTooltip>
   );
 }

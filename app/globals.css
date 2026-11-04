@@ -152,3 +152,20 @@ html {
     color: inherit;
   }
 }
+
+/* Pixel cursors for mouse and trackpad users, matching the pixel avatar and background.
+   Several components set `cursor: pointer` themselves, so the hand needs !important to stay consistent.
+   Hotspots: the arrow's tip is at (1, 1) and the hand's fingertip at (8, 1). */
+@media (hover: hover) and (pointer: fine) {
+  html {
+    cursor: url("/cursors/arrow.svg") 1 1, default;
+  }
+
+  :is(a[href], button:not(:disabled), [role="button"], [role="slider"], label, summary, select) {
+    cursor: url("/cursors/hand.svg") 8 1, pointer !important;
+  }
+
+  :is(input:not([type="checkbox"], [type="radio"], [type="range"]), textarea, [contenteditable="true"]) {
+    cursor: text;
+  }
+}

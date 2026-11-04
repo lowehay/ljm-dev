@@ -60,6 +60,7 @@ export const projects: Project[] = [
     tech: ["Next.js", "Three.js", "GSAP", "Framer Motion"],
     live: "https://aura-brew-topaz.vercel.app/",
     repo: "https://github.com/lowehay/aura-brew",
+    caseStudy: "/projects/aura-brew",
   },
   {
     title: "School Records Management System",
@@ -130,3 +131,7 @@ export const stackCategories = [
     skills: ["LLM APIs", "Prompt Engineering", "Claude Code", "Cursor"],
   },
 ];
+
+// The "Off the clock" line in the footer; the AI chat can mention it too
+export const hobbies =
+  "squeezing every frame out of my gaming laptop, watching anime, and getting lost in YouTube house builds and room makeovers.";

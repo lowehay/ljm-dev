@@ -6,6 +6,7 @@ import Section from "./Section";
 import LocalTime from "./LocalTime";
 import ShinyText from "./effects/ShinyText";
 import { site } from "../site";
+import { hobbies } from "../data";
 
 // The form appears once RESEND_API_KEY is set (see app/actions/contact.ts); until then it's email only
 const contactFormEnabled = Boolean(process.env.RESEND_API_KEY);
@@ -15,10 +16,11 @@ export default function Footer() {
     { label: "github", href: site.github, external: true },
     { label: "linkedin", href: site.linkedin, external: true },
     { label: "résumé", href: site.resume, external: false },
+    { label: "notes", href: "/notes", external: false },
   ].filter((l) => l.href);
 
   return (
-    <Section id="contact" index="05" title="Contact" as="footer" className="space-y-6 pt-4 lg:pt-0">
+    <Section id="contact" index="06" title="Contact" as="footer" className="space-y-6 pt-4 lg:pt-0">
       <div className="space-y-2">
         <h3 className="text-xl font-bold text-fg">
           <ShinyText>Let&apos;s build something great together.</ShinyText>
@@ -69,7 +71,7 @@ export default function Footer() {
       </div>
 
       <p className="text-sm text-muted leading-relaxed">
-        <span className="text-fg-soft">Off the clock:</span> squeezing every frame out of my gaming laptop, watching anime, and getting lost in YouTube house builds and room makeovers.
+        <span className="text-fg-soft">Off the clock:</span> {hobbies}
       </p>
 
       <div className="flex items-center justify-between pt-6 border-t border-line text-xs text-muted font-mono">

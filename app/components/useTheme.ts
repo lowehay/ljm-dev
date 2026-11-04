@@ -17,3 +17,14 @@ const getServerTheme = () => null;
 export function useTheme(): Theme | null {
   return useSyncExternalStore(subscribe, getTheme, getServerTheme);
 }
+
+// Flips the theme and remembers it; used by the theme button and the command palette
+export function toggleTheme() {
+  const next: Theme = getTheme() === "light" ? "dark" : "light";
+  document.documentElement.dataset.theme = next;
+  try {
+    localStorage.setItem("theme", next);
+  } catch {
+    // Storage can be blocked; the theme still applies for this visit
+  }
+}

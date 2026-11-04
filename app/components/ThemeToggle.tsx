@@ -1,27 +1,20 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import WarmTooltip from "./WarmTooltip/WarmTooltip";
 import { Moon, Sun } from "lucide-react";
-import { getTheme, useTheme, type Theme } from "./useTheme";
+import { toggleTheme, useTheme } from "./useTheme";
 
 export default function ThemeToggle() {
   const theme = useTheme();
-
-  const toggle = () => {
-    const next: Theme = getTheme() === "light" ? "dark" : "light";
-    document.documentElement.dataset.theme = next;
-    try {
-      localStorage.setItem("theme", next);
-    } catch {
-      // Storage can be blocked; the theme still applies for this visit
-    }
-  };
+  const label = theme === "light" ? "Switch to dark theme" : "Switch to light theme";
 
   return (
+    <WarmTooltip content={label} side="bottom" surfaceColor="var(--color-fg)" inkColor="var(--color-canvas)" size="sm">
     <button
       type="button"
-      onClick={toggle}
-      aria-label={theme === "light" ? "Switch to dark theme" : "Switch to light theme"}
+      onClick={toggleTheme}
+      aria-label={label}
       className="p-2 text-muted hover:text-fg transition"
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -37,5 +30,6 @@ export default function ThemeToggle() {
         </motion.span>
       </AnimatePresence>
     </button>
+    </WarmTooltip>
   );
 }

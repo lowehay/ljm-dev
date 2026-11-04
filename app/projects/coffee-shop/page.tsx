@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { site } from "../../site";
 import { projects } from "../../data";
+import { CaseStudyPage, Decision, Section } from "../CaseStudy";
+import CoffeeDemo from "./CoffeeDemo";
 
 const project = projects.find((p) => p.caseStudy === "/projects/coffee-shop")!;
 
@@ -13,77 +13,23 @@ export const metadata: Metadata = {
   alternates: { canonical: "/projects/coffee-shop" },
 };
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="space-y-3">
-      <h2 className="text-xs font-mono uppercase tracking-wider text-muted border-b border-line pb-2">{title}</h2>
-      {children}
-    </section>
-  );
-}
-
-function Decision({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <h3 className="text-base font-semibold text-fg tracking-tight">{title}</h3>
-      <div className="text-sm leading-relaxed space-y-2">{children}</div>
-    </div>
-  );
-}
-
 export default function CoffeeShopCaseStudy() {
-  const links = [
-    { label: "live demo", href: project.live },
-    { label: "source", href: project.repo },
-  ].filter((l) => l.href);
-
-  const facts = [
-    { label: "Role", value: "Solo: design, API, frontend, deployment" },
-    { label: "Year", value: "2025" },
-    { label: "Stack", value: "React, Django REST, PostgreSQL" },
-    { label: "Hosting", value: "Vercel + Render" },
-  ];
-
   return (
-    <main className="max-w-2xl w-full mx-auto px-6 py-12 space-y-10 text-fg-soft">
-      <Link href="/#projects" className="inline-flex items-center gap-1.5 py-1 text-xs font-mono text-muted hover:text-fg transition group">
-        <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-        <span>back to projects</span>
-      </Link>
-
-      <header className="space-y-4">
-        <span className="text-xs font-mono text-muted">Case study · {project.category}</span>
-        <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-fg">{project.title}</h1>
-        <p className="text-base leading-relaxed">
+    <CaseStudyPage
+      project={project}
+      intro={
+        <>
           A system for running a café, covering orders, recipes, ingredient inventory, and sales reporting, built so the
           stock count always reflects what&apos;s actually on the shelf.
-        </p>
-
-        <dl className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2 border-t border-line">
-          {facts.map((f) => (
-            <div key={f.label} className="pt-3">
-              <dt className="text-xs font-mono text-muted">{f.label}</dt>
-              <dd className="text-sm text-fg mt-0.5">{f.value}</dd>
-            </div>
-          ))}
-        </dl>
-
-        <div className="flex gap-5 text-xs font-mono text-muted">
-          {links.map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 py-1 hover:text-fg transition group"
-            >
-              <span>{l.label}</span>
-              <ArrowUpRight className="w-3.5 h-3.5 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
-            </a>
-          ))}
-        </div>
-      </header>
-
+        </>
+      }
+      facts={[
+        { label: "Role", value: "Solo: design, API, frontend, deployment" },
+        { label: "Year", value: "2025" },
+        { label: "Stack", value: "React, Django REST, PostgreSQL" },
+        { label: "Hosting", value: "Vercel + Render" },
+      ]}
+    >
       <Section title="The problem">
         <p className="text-sm leading-relaxed">
           A café sells drinks, but what it actually stocks is ingredients: beans by the kilo, milk by the liter, syrup by the
@@ -101,6 +47,14 @@ export default function CoffeeShopCaseStudy() {
           <li>Customer accounts, with guest orders also supported</li>
           <li>A sales dashboard with revenue by hour, day, and month, order status counts, and best-selling products</li>
         </ul>
+      </Section>
+
+      <Section title="Try it">
+        <p className="text-sm leading-relaxed">
+          A small version of the inventory logic running right here in your browser. Drinks can only be added while
+          there&apos;s stock for them, and ingredients are taken only when the order is completed.
+        </p>
+        <CoffeeDemo />
       </Section>
 
       <Section title="Key decisions">
@@ -172,14 +126,6 @@ export default function CoffeeShopCaseStudy() {
           <li>Seed the live demo with sample data and a limited demo login so visitors can try it right away</li>
         </ul>
       </Section>
-
-      <footer className="pt-6 border-t border-line flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-muted">
-        <span>Want something like this for your business?</span>
-        <Link href="/#contact" className="flex items-center gap-1 py-1 text-fg hover:opacity-80 transition group">
-          <span>get in touch</span>
-          <ArrowUpRight className="w-3.5 h-3.5 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 transition-transform" />
-        </Link>
-      </footer>
-    </main>
+    </CaseStudyPage>
   );
 }
