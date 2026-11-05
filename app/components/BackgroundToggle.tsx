@@ -12,7 +12,7 @@ export default function BackgroundToggle() {
   const label = next === "grain" ? "Switch to gradient background" : "Switch to pixel background";
 
   return (
-    <WarmTooltip content={label} side="bottom" surfaceColor="var(--color-fg)" inkColor="var(--color-canvas)" size="sm">
+    <WarmTooltip content={label} shortcut="B" side="bottom" surfaceColor="var(--color-fg)" inkColor="var(--color-canvas)" size="sm">
     <button
       type="button"
       onClick={() => setBackground(next)}

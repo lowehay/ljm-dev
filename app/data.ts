@@ -65,14 +65,14 @@ export const projects: Project[] = [
   {
     title: "School Records Management System",
     category: "School Administration",
-    desc: "Records management system for schools that centralizes student and academic records behind role-based access. Together with the LMS, it serves 5,000+ users.",
-    tech: ["React", "Django REST", "PostgreSQL", "Tailwind"],
+    desc: "Records management system for schools that centralizes student and academic records behind role-based access. I built and led the front end, on a design system I built from scratch in plain CSS and JavaScript. Together with the LMS, it serves 5,000+ users.",
+    tech: ["Django", "HTML", "CSS", "JavaScript"],
   },
   {
     title: "LMS Platform",
     category: "Education Platform",
-    desc: "Multi-tenant learning portal featuring course management, gradebooks, and role-based access control. Together with the records system, it serves 5,000+ users.",
-    tech: ["React", "Django REST", "PostgreSQL", "Tailwind"],
+    desc: "Multi-tenant learning portal featuring course management, gradebooks, and role-based access control. I built and led the front end, on a design system I built from scratch in plain CSS and JavaScript. Together with the records system, it serves 5,000+ users.",
+    tech: ["Django", "HTML", "CSS", "JavaScript"],
   },
 ];
 
@@ -87,7 +87,7 @@ export const roles = [
     period: "July 2024 — Present",
     role: "Front-End & Full-Stack Developer",
     badge: "Full-time",
-    desc: "Leading front-end initiatives with React, Next.js, and TypeScript while managing full-stack features. In addition to core web development, I perform data analysis for internal decision-making and handle server deployments across cloud environments.",
+    desc: "Leading the front end of the company's school platforms (LMS and records system), including a design system I built from scratch in plain CSS and JavaScript, and front-end initiatives with React, Next.js, and TypeScript while managing full-stack features. In addition to core web development, I perform data analysis for internal decision-making and handle server deployments across cloud environments.",
   },
   {
     period: "Feb 2024 — July 2024",

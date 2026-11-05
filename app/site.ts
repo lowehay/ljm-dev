@@ -19,7 +19,7 @@ export const site = {
   availability: "Available for freelance work",
   // How soon you reply, shown under the contact form and the scoper/chat send buttons; the AI chat repeats it
   replyWithin: "within 24 hours",
-  linkedin: "", // e.g. "https://www.linkedin.com/in/your-handle"
+  linkedin: "https://www.linkedin.com/in/louie-jae-maravillosa-a5128a449",
   resume: "/resume", // printable page generated from app/data.ts
   // Background music: put the file in public/music/ and set this, e.g. "/music/background.mp3"; empty hides the button.
   // To loop seamlessly it needs the padding from scripts/encode-loop.mjs

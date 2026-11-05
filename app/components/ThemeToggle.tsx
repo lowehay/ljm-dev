@@ -10,7 +10,7 @@ export default function ThemeToggle() {
   const label = theme === "light" ? "Switch to dark theme" : "Switch to light theme";
 
   return (
-    <WarmTooltip content={label} side="bottom" surfaceColor="var(--color-fg)" inkColor="var(--color-canvas)" size="sm">
+    <WarmTooltip content={label} shortcut="T" side="bottom" surfaceColor="var(--color-fg)" inkColor="var(--color-canvas)" size="sm">
     <button
       type="button"
       onClick={toggleTheme}

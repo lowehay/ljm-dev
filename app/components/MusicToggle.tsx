@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Volume2, VolumeX } from "lucide-react";
 import WakeSlider from "./WakeSlider/WakeSlider";
+import { TOGGLE_MUSIC_EVENT } from "./events";
 
 const DEFAULT_VOLUME = 35; // percent
 const FADE_S = 0.8;
@@ -103,6 +104,13 @@ export default function MusicToggle({ src }: { src: string }) {
     player.gain.gain.setTargetAtTime(next / 100, now, 0.05);
   };
 
+  // The M shortcut (see Navbar) toggles the music through this event
+  useEffect(() => {
+    if (failed) return;
+    window.addEventListener(TOGGLE_MUSIC_EVENT, toggle);
+    return () => window.removeEventListener(TOGGLE_MUSIC_EVENT, toggle);
+  });
+
   const label = failed ? "Music unavailable" : playing ? "Turn music off" : "Turn music on";
 
   return (
@@ -124,7 +132,10 @@ export default function MusicToggle({ src }: { src: string }) {
         <div className="absolute top-full left-1/2 -translate-x-1/2 pt-2 z-50 opacity-0 pointer-events-none transition-opacity duration-200 group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto">
           <div className="w-44 rounded-xl border border-line bg-surface/90 backdrop-blur-md px-3 pt-2 pb-1 shadow-lg">
             {/* Stands in for a tooltip: the panel opens on hover, so it says what the button does */}
-            <p className="text-[11px] font-mono text-muted">{playing ? "Stop music" : "Play music"}</p>
+            <p className="flex items-center justify-between text-[11px] font-mono text-muted">
+              {playing ? "Stop music" : "Play music"}
+              <kbd className="px-1 rounded border border-line text-[10px] leading-4">M</kbd>
+            </p>
             <WakeSlider
               value={volume}
               onChange={changeVolume}
