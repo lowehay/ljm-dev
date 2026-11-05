@@ -165,7 +165,158 @@ padded.set(samples.subarray(0, pad), pad + samples.length); // start of the loop
   );
 }
 
+function SmoothScrollStopsHalfway() {
+  return (
+    <>
+      <P>
+        Aura Brew, my 3D coffee café site, has a navbar that jumps to each section with a smooth scroll. Most links
+        worked. Then I noticed two things: sections landed with an empty band above them, and one link, &quot;Brew at
+        home&quot;, sometimes stopped in the middle of the page and stayed there.
+      </P>
+
+      <H2>Problem one: an offset counted twice</H2>
+      <P>
+        Each section has a <C>scroll-margin-top</C> so its heading lands just under the fixed navbar. While working on the
+        site I had also tried a page-wide <C>scroll-padding-top</C> on <C>html</C>, then removed it. The browser adds both
+        together, and the development server kept serving the old stylesheet with the padding still in it. So every
+        section landed about 100 pixels too low, but only in development, which is why my production build tests passed.
+      </P>
+      <P>
+        The fix was to stop relying on the value being absent and set it explicitly, so the per-section margins are the
+        only offset:
+      </P>
+      <Code label="globals.css">{`
+html {
+  /* The per-section scroll-margins do the offsetting, so nothing is added on top */
+  scroll-padding-top: 0;
+}
+`}</Code>
+
+      <H2>Problem two: the scroll that gave up</H2>
+      <P>
+        &quot;Brew at home&quot; only failed when I clicked it from higher up the page. The scroll would start, pass
+        into the &quot;cherry to cup&quot; section, and stop there. That section is pinned: it stays on screen while you
+        scroll through six steps, and the current step&apos;s paragraph opened while the others closed.
+      </P>
+      <P>
+        To find the cause I removed sections one at a time and retried the click. With the pinned section gone, the
+        scroll finished every time. The problem was the resizing. As the smooth scroll passed through, steps opened and
+        closed, the content changed height, and Chrome abandoned the scroll instead of finishing it.
+      </P>
+
+      <H2>The fix: nothing resizes while you scroll</H2>
+      <P>
+        I kept the effect but changed the layout. The list of steps now has a fixed size, and the current step&apos;s text
+        shows in one fixed-height panel below it, fading from one step to the next. The page height never changes during
+        a scroll:
+      </P>
+      <Code label="Journey.tsx">{`
+<div className="relative mt-5 h-28 sm:h-24" aria-live="polite">
+  <AnimatePresence mode="wait" initial={false}>
+    <motion.p key={active} className="absolute inset-x-0 top-0" /* fade in and out */>
+      {STEPS[active].text}
+    </motion.p>
+  </AnimatePresence>
+</div>
+`}</Code>
+
+      <H2>Result</H2>
+      <P>
+        I scripted a check that clicks every navbar link from different starting points and measures where each heading
+        lands. All seven links now land with the heading just under the navbar, including &quot;Brew at home&quot;
+        clicked from further up the page, where it used to stop.
+      </P>
+      <List
+        items={[
+          "If an anchor link lands in the wrong place, check scroll-padding on the page and scroll-margin on the target. They add up.",
+          "Content that changes size during a smooth scroll can cancel it. Pinned and animated sections are the usual suspects.",
+          "When the cause isn't obvious, remove sections until the bug disappears. It's faster than guessing.",
+        ]}
+      />
+    </>
+  );
+}
+
+function ShrinkingA3DModel() {
+  return (
+    <>
+      <P>
+        The star of Aura Brew is a 3D coffee bean that follows you down the page. The model I started with was an OBJ file
+        of 11.5 MB, so the preloader spent most of its time on one bean. I wanted it under a megabyte without it looking
+        any worse.
+      </P>
+
+      <H2>Converting and compressing</H2>
+      <P>
+        OBJ is a plain-text format, so it&apos;s large. I converted it to glTF, the standard format for 3D on the web, and
+        then compressed it with Meshopt, which stores the geometry in a compact binary form the browser decodes quickly:
+      </P>
+      <Code label="Terminal">{`
+npx obj2gltf -i bean.obj -o bean.glb
+npx @gltf-transform/cli optimize bean.glb coffee-bean.glb --compress meshopt --no-simplify
+`}</Code>
+      <P>
+        On the page, the loader needs to be told about Meshopt. With React Three Fiber&apos;s helpers that&apos;s one
+        argument: <C>useGLTF(url, false, true)</C>.
+      </P>
+
+      <H2>The smaller version that looked wrong</H2>
+      <P>
+        My first attempt also simplified the mesh, removing most of its triangles, and recalculated the lighting normals.
+        The file was tiny, but the bean looked smooth and plastic. The fine creases that make it read as a real bean came
+        from the original normals, not from the number of triangles. So I kept every triangle and the original normals,
+        and let compression do the work. That version came out at 871 KB.
+      </P>
+      <P>
+        The simplified version did find a use. When you change the roast, a burst of small beans flies out, and at that
+        size nobody sees the detail. That low-detail copy is 68 KB.
+      </P>
+
+      <H2>The bug compression introduced</H2>
+      <P>
+        The burst beans first rendered as jagged shards, like crystals. To save space, the compressed model stores positions
+        as 16-bit integers instead of floats. I was baking the model&apos;s transform straight into that array, and
+        writing scaled decimal values into integer storage scrambled the shape. Copying the positions out as floats first
+        fixed it:
+      </P>
+      <Code label="Copy before transforming">{`
+const pos = source.getAttribute("position");
+const floats = new Float32Array(pos.count * 3);
+for (let i = 0; i < pos.count; i++) {
+  floats[i * 3] = pos.getX(i);     // getX() undoes the integer packing
+  floats[i * 3 + 1] = pos.getY(i);
+  floats[i * 3 + 2] = pos.getZ(i);
+}
+geometry.setAttribute("position", new THREE.BufferAttribute(floats, 3));
+geometry.applyMatrix4(node.matrixWorld); // safe now
+`}</Code>
+
+      <H2>Result</H2>
+      <Stats
+        items={[
+          { label: "Bean model", before: "11.5 MB", after: "871 KB" },
+          { label: "Burst model", after: "68 KB" },
+          { label: "Studio lighting map", after: "131 KB" },
+        ]}
+      />
+      <P>
+        I also self-hosted the studio lighting map at a smaller size, and the preloader now waits until the scene is
+        actually ready, so the page never appears with the bean missing.
+      </P>
+      <List
+        items={[
+          "Compress first, simplify last. Fewer triangles saves bytes, but compression saves most of them without changing the look.",
+          "Detail often lives in the normals. Recalculating them can cost more than removing triangles.",
+          "Compressed geometry may not be stored as floats. Read it through the attribute's getters before modifying it.",
+        ]}
+      />
+    </>
+  );
+}
+
 export const bodies: Record<string, () => React.JSX.Element> = {
+  "smooth-scroll-stops-halfway": SmoothScrollStopsHalfway,
+  "shrinking-a-3d-model": ShrinkingA3DModel,
   "webgl-without-a-gpu": WebGLWithoutAGPU,
   "seamless-audio-loop": SeamlessAudioLoop,
 };

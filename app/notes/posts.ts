@@ -11,6 +11,24 @@ export type Post = {
 
 export const posts: Post[] = [
   {
+    slug: "smooth-scroll-stops-halfway",
+    title: "Why my navbar link stopped scrolling halfway",
+    summary:
+      "Clicking one link on my 3D café site scrolled partway and gave up. The cause was a pinned section that changed size mid-scroll, plus a stale offset stacking on top.",
+    date: "2026-11-05",
+    readMinutes: 4,
+    tags: ["CSS", "Scrolling", "Frontend"],
+  },
+  {
+    slug: "shrinking-a-3d-model",
+    title: "Shrinking a 3D model from 11.5 MB to 871 KB",
+    summary:
+      "My coffee bean was an 11.5 MB OBJ file. Converting and compressing it was the easy part; keeping it looking like a real bean took more care.",
+    date: "2026-11-05",
+    readMinutes: 4,
+    tags: ["Three.js", "Performance", "3D"],
+  },
+  {
     slug: "webgl-without-a-gpu",
     title: "Making a WebGL site fast on computers without a GPU",
     summary:

@@ -8,7 +8,7 @@ const project = projects.find((p) => p.caseStudy === "/projects/aura-brew")!;
 export const metadata: Metadata = {
   title: `${project.title} case study — ${site.name}`,
   description:
-    "How I built a scroll-driven 3D landing page for a concept coffee roaster, where one coffee bean travels through every section and changes with the roast you pick.",
+    "How I built a 3D website for a concept Philippine coffee café, where one coffee bean travels through the page, plus a brew quiz, menu, 3D brewing timer, and map.",
   alternates: { canonical: "/projects/aura-brew" },
 };
 
@@ -16,30 +16,34 @@ export default function AuraBrewCaseStudy() {
   return (
     <CaseStudyPage
       project={project}
-      intro="A landing page for a concept specialty coffee roaster. Instead of static product photos, a single 3D coffee bean follows the visitor down the page and changes with the roast they choose."
+      intro="A website for a concept specialty café that roasts Philippine coffee. A single 3D coffee bean follows the visitor down the page and changes with the roast they pick. Around it is everything a real café site needs: a menu with prices, beans to take home, events, and directions."
       facts={[
         { label: "Role", value: "Solo: design, 3D, frontend" },
         { label: "Year", value: "2026" },
-        { label: "Stack", value: "Next.js, Three.js, GSAP" },
+        { label: "Stack", value: "Next.js, React Three Fiber, Framer Motion" },
         { label: "Hosting", value: "Vercel" },
       ]}
     >
       <Section title="The goal">
         <p className="text-sm leading-relaxed">
-          Coffee roaster sites tend to look alike: a hero photo, a grid of bags, an about section. I wanted to try a page
-          where the product itself is the guide. One bean stays on screen the whole time, moves into each section as you
-          scroll, and reacts to the visitor, so the page feels like one continuous scene instead of stacked blocks.
+          Coffee shop sites tend to look alike: a hero photo, a grid of drinks, an about section. I wanted a page where
+          the product itself is the guide. One bean stays on screen, moves into each section as you scroll, and reacts
+          to what you do. The first version was only a landing page. I then grew it into a site a café could actually
+          run on, with content written to be realistic for a small roaster in Mindanao.
         </p>
       </Section>
 
       <Section title="What I built">
         <List
           items={[
-            "A full-screen 3D layer behind the page, with a real coffee bean model lit like a studio product shot",
-            "Scroll-driven motion that carries the bean through the hero, origin story, and signature brews sections",
-            "A roast selector (light, medium, dark) that recolors the bean and the page's accent color",
-            "Floating coffee-dust particles and a gentle mouse-follow tilt and parallax",
-            "A preloader that tracks the 3D model's download, and a custom cursor for mouse users",
+            "A full-screen 3D layer with a real coffee bean model, lit with a studio light map, that travels through the hero, origin story, signature brews, and quiz",
+            "A roast picker (light, medium, dark) that recolors the bean and the page's accent, with a burst of small beans when you change it",
+            "A three-question brew finder quiz that recommends a drink and roast and highlights your match on the menu",
+            "A full menu in tabs with peso prices, and four 250 g bags of Philippine beans you can preview on the 3D bean",
+            "A brew-at-home timer for pour-over, French press, and cold brew, with a 3D brewer that fills, steeps, and presses as the timer runs",
+            "A pinned \"cherry to cup\" section with six steps, a progress rail, and a swatch that changes color from red cherry to roasted brown",
+            "Events with their next real dates, a demo loyalty stamp card, a drink suggestion based on live weather, and a live open or closed status in Manila time",
+            "A visit section with a map, directions, and an FAQ",
           ]}
         />
       </Section>
@@ -50,23 +54,26 @@ export default function AuraBrewCaseStudy() {
             <p>
               Rather than a separate canvas per section, there&apos;s one fixed, full-screen WebGL layer that sits behind the
               content and ignores clicks. The bean lives there, so it can move smoothly between sections without being
-              torn down and recreated, and the page&apos;s normal text and links stay fully usable on top.
+              torn down and recreated, and the page&apos;s text and links stay fully usable on top.
             </p>
           </Decision>
 
-          <Decision title="Scroll motion described as waypoints">
+          <Decision title="A bean path measured from the page, not hard-coded">
             <p>
-              The bean&apos;s path is a short list of waypoints, one per section leg, each with a position, size, and
-              rotation. GSAP ScrollTrigger ties each leg to that section&apos;s scroll range and eases between them. Tuning
-              the path means editing numbers in one list, not hunting through animation code.
+              My first version used scroll-tied animations per section. Scrolling back up quickly made them fight each
+              other, and the bean could end up in the wrong spot. Now the page measures where each section sits, the
+              bean&apos;s target pose is worked out from the scroll position, and the bean eases toward it every frame. It
+              can&apos;t get stuck, and it lines up with the glow behind it on any screen size. Phones get their own path
+              that keeps the bean in a corner, away from the text.
             </p>
           </Decision>
 
-          <Decision title="Layered transforms so animations don't fight">
+          <Decision title="A 92% smaller model with the same detail">
             <p>
-              Four things move the bean at once: scrolling, the entrance animation, a pulse when a roast is picked, and the
-              mouse tilt. Each one controls its own nested group, so their effects combine instead of overwriting each
-              other.
+              The bean started as an 11.5 MB OBJ file. I converted it to a compressed glTF model at 871 KB, keeping the
+              original surface normals so it still looks like a real bean, plus a 68 KB low-detail copy for the burst
+              effect. The studio lighting map is self-hosted and shrunk to 131 KB. The preloader now waits until the 3D
+              scene is actually ready, so the page never appears with the bean missing.
             </p>
           </Decision>
 
@@ -74,17 +81,27 @@ export default function AuraBrewCaseStudy() {
             <p>
               Each roast is a preset color and surface roughness: a light roast is tan and matte, a dark roast is nearly
               black with more sheen. Picking one animates the bean&apos;s material toward the preset and shifts the
-              site&apos;s accent glow to match. A procedurally generated bump texture adds the small pits of a real roasted
-              bean without another image download.
+              site&apos;s accent glow to match. The quiz and the beans for sale use the same presets, so a recommendation
+              shows up on the 3D bean straight away.
             </p>
           </Decision>
 
-          <Decision title="Shared state without wrapping the page in providers">
+          <Decision title="3D only where the device can handle it">
             <p>
-              The roast picker and the 3D scene live far apart in the component tree. They share state through a tiny
-              store read with React&apos;s useSyncExternalStore, so the page itself can stay a server component. The same
-              pattern tells the scene when the preloader has finished, so the bean&apos;s entrance plays only once the
-              page is revealed.
+              On computers without hardware graphics, the browser draws WebGL on the CPU, which is slow. The site checks
+              which renderer it got and switches to a lighter mode: fewer pixels, no coffee dust, no burst. The 3D brewer
+              shows a simple progress ring instead and only renders while it&apos;s on screen. Visitors who ask for
+              reduced motion get a still bean and no extra animation.
+            </p>
+          </Decision>
+
+          <Decision title="Fixing what visitors would notice">
+            <p>
+              I tested every navbar link to check that each section lands fully in view. One didn&apos;t: the browser
+              cancels a smooth scroll if content resizes while it&apos;s running, and the pinned journey section grew and
+              shrank as steps opened. Giving it a fixed layout fixed the jump. I also fixed hydration errors, including
+              one caused by a browser extension, by making sure the server and browser render the same markup and doing
+              anything that depends on the date or weather after the page loads.
             </p>
           </Decision>
         </div>
@@ -93,9 +110,9 @@ export default function AuraBrewCaseStudy() {
       <Section title="What I'd do next">
         <List
           items={[
-            "Convert the bean from an 11 MB OBJ file to a compressed glTF model, which would cut the download dramatically and shorten the preloader",
-            "Respect the reduced-motion setting by keeping the bean still for visitors who ask for less motion",
-            "Show a static image of the bean on devices without hardware graphics, instead of rendering 3D in software",
+            "Connect the menu and events to a small CMS, so the café could change prices and dates without code",
+            "Add real online ordering for pickup once there's a shop behind it, since this concept site deliberately has no checkout",
+            "Test the 3D scenes on more low-end phones and tune the lighter mode from what I find",
           ]}
         />
       </Section>

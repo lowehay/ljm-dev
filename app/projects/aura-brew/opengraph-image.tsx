@@ -11,7 +11,7 @@ export default function Image() {
   return ogCard({
     eyebrow: "Case study",
     title: project.title,
-    subtitle: "A scroll-driven 3D landing page where one coffee bean travels through every section.",
+    subtitle: "A 3D café website where one coffee bean travels with you, from the hero to a brewing timer.",
     tags: project.tech,
   });
 }

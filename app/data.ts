@@ -56,8 +56,8 @@ export const projects: Project[] = [
   {
     title: "Aura Brew",
     category: "Creative Frontend",
-    desc: "Landing page for a concept specialty coffee roaster. A 3D coffee bean travels with you across sections on scroll, and a roast selector restyles it from light to dark.",
-    tech: ["Next.js", "Three.js", "GSAP", "Framer Motion"],
+    desc: "Website for a concept Philippine specialty café. A 3D coffee bean travels with you through the page, and visitors can take a brew-matching quiz, browse the menu and beans, run a 3D brew timer, and find the café on a map.",
+    tech: ["Next.js", "Three.js", "React Three Fiber", "Framer Motion"],
     live: "https://aura-brew-topaz.vercel.app/",
     repo: "https://github.com/lowehay/aura-brew",
     caseStudy: "/projects/aura-brew",

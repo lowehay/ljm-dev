@@ -1,7 +1,7 @@
 // What I'm focused on right now, shown on /now and given to the "Ask about me" chat.
 // Update it every month or so, and change `updated` when you do.
 export const now = {
-  updated: "2026-11-04",
+  updated: "2026-11-05",
   location: "South Cotabato, Philippines",
   items: [
     {
@@ -14,7 +14,7 @@ export const now = {
     },
     {
       label: "Building",
-      text: "This portfolio, including an AI assistant that answers questions from the site's own content and a project scoper that gives visitors a rough timeline.",
+      text: "This portfolio, with an AI assistant that answers from the site's own content and a project scoper for rough timelines. I also rebuilt Aura Brew, my 3D coffee café site, into a full site with a menu, a brew quiz, and a 3D brewing timer.",
     },
     {
       label: "Writing",
