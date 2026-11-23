@@ -1,5 +1,6 @@
 import { ArrowUpRight } from "lucide-react";
 import Section from "./Section";
+import KabanShowcase from "./KabanShowcase";
 import { projects } from "../data";
 import Spotlight from "./effects/Spotlight";
 import ContributionGraph from "./ContributionGraph";
@@ -13,8 +14,11 @@ export default async function Projects() {
 
   return (
     <Section id="projects" index="02" title="Featured Projects">
+      {/* Kaban leads, as a product showcase; the rest are listed under it */}
+      <KabanShowcase />
+
       <div className="divide-y divide-line">
-        {projects.map((p) => {
+        {projects.filter((p) => p.caseStudy !== "/projects/kaban").map((p) => {
           const links = [
             { label: "case study", href: p.caseStudy, external: false },
             { label: "live demo", href: p.live, external: true },
@@ -22,7 +26,7 @@ export default async function Projects() {
           ].filter((l) => l.href);
 
           return (
-            <Spotlight key={p.title} className="py-5 lg:first:pt-0">
+            <Spotlight key={p.title} className="py-5">
               <span className="text-xs font-mono text-muted">{p.category}</span>
               <h3 className="text-base font-semibold text-fg">{p.title}</h3>
 

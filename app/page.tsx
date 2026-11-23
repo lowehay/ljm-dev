@@ -3,7 +3,6 @@ import Hero from "./components/Hero";
 import BentoMetrics from "./components/BentoMetrics";
 import Services from "./components/Services";
 import Projects from "./components/Projects";
-import KabanShowcase from "./components/KabanShowcase";
 import Experience from "./components/Experience";
 import TechStack from "./components/TechStack";
 import Notes from "./components/Notes";
@@ -49,7 +48,6 @@ export default function Home() {
       <main className="max-w-5xl mx-auto px-6 space-y-16 lg:space-y-20">
         <Hero />
         <Reveal><BentoMetrics /></Reveal>
-        <KabanShowcase />
         <Reveal><TechMarquee /></Reveal>
         <Reveal><Services /></Reveal>
         <Reveal><Projects /></Reveal>
