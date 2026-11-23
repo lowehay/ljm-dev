@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
@@ -8,24 +7,21 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { projects } from "../data";
 
 // The featured product, shown like a product launch: three phones with the real app, a grid of
-// what it does (close-ups of the real screens), then the app's main idea to try.
+// what it does (close-ups of the real screens).
 
 const kaban = projects.find((p) => p.caseStudy === "/projects/kaban")!;
 
 function Phone({ src, alt, sizes, priority = false }: { src: string; alt: string; sizes: string; priority?: boolean }) {
   return (
-    <div className="rounded-[2.6rem] border border-line-strong bg-black p-2">
-      <div className="overflow-hidden rounded-[2.1rem] aspect-[720/1465] relative bg-black">
+    <div className="rounded-[1.6rem] sm:rounded-[2.6rem] border border-line-strong bg-black p-1 sm:p-2">
+      <div className="overflow-hidden rounded-[1.35rem] sm:rounded-[2.1rem] aspect-[720/1465] relative bg-black">
         <Image src={src} alt={alt} fill sizes={sizes} className="object-cover object-top" priority={priority} />
       </div>
     </div>
   );
 }
 
-/**
- * Three phones, the middle one in front. They're cut off by the line under them, like a product
- * shot standing on a shelf. The two at the sides slide out from behind the middle one once.
- */
+/** Three phones, the middle one in front. The two at the sides slide out from behind it once. */
 function Phones() {
   const reduce = useReducedMotion();
   const side = (from: number) => ({
@@ -35,23 +31,21 @@ function Phones() {
     transition: { duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] as const },
   });
   return (
-    <div className="relative -mx-6 sm:mx-0 overflow-hidden border-b border-line">
-      <div className="flex justify-center items-start pt-6 h-[380px] sm:h-[520px] lg:h-[600px]">
-        <motion.div {...side(90)} className="w-[150px] sm:w-[220px] lg:w-[250px] mt-14 sm:mt-20 -mr-8 sm:-mr-10 shrink-0">
-          <Phone src="/kaban/reports.webp" alt="Kaban's Reports screen: ₱18,000 income, ₱8,365 spent, and a daily spending chart" sizes="250px" />
-        </motion.div>
-        <div className="relative z-10 w-[190px] sm:w-[270px] lg:w-[310px] shrink-0">
-          <Phone
-            src="/kaban/home.webp"
-            alt="Kaban's Home screen: ₱3,298 safe to spend per day, 7 days to the 30th, with ₱4,049 held for bills"
-            sizes="310px"
-            priority
-          />
-        </div>
-        <motion.div {...side(-90)} className="w-[150px] sm:w-[220px] lg:w-[250px] mt-14 sm:mt-20 -ml-8 sm:-ml-10 shrink-0">
-          <Phone src="/kaban/goals.webp" alt="Kaban's Goals screen: an emergency fund at 41% and a laptop fund at 21%" sizes="250px" />
-        </motion.div>
+    <div className="flex justify-center items-center pt-4">
+      <motion.div {...side(60)} className="w-[33%] max-w-[250px] -mr-[6%] sm:-mr-10 shrink-0">
+        <Phone src="/kaban/reports.webp" alt="Kaban's Reports screen: ₱18,000 income, ₱8,365 spent, and a daily spending chart" sizes="250px" />
+      </motion.div>
+      <div className="relative z-10 w-[45%] max-w-[310px] shrink-0">
+        <Phone
+          src="/kaban/home.webp"
+          alt="Kaban's Home screen: ₱3,298 safe to spend per day, 7 days to the 30th, with ₱4,049 held for bills"
+          sizes="310px"
+          priority
+        />
       </div>
+      <motion.div {...side(-60)} className="w-[33%] max-w-[250px] -ml-[6%] sm:-ml-10 shrink-0">
+        <Phone src="/kaban/goals.webp" alt="Kaban's Goals screen: an emergency fund at 41% and a laptop fund at 21%" sizes="250px" />
+      </motion.div>
     </div>
   );
 }
@@ -134,87 +128,6 @@ function Bento() {
   );
 }
 
-const peso = (n: number) => `₱${Math.round(n).toLocaleString("en-PH")}`;
-
-function Slider({
-  label,
-  value,
-  min,
-  max,
-  step,
-  onChange,
-  format,
-}: {
-  label: string;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  onChange: (n: number) => void;
-  format: (n: number) => string;
-}) {
-  return (
-    <label className="block space-y-2">
-      <span className="flex items-baseline justify-between gap-3 text-sm">
-        <span className="text-muted">{label}</span>
-        <span className="font-mono text-fg tabular-nums">{format(value)}</span>
-      </span>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-[var(--color-fg)] h-6 cursor-pointer"
-      />
-    </label>
-  );
-}
-
-/** Kaban's main idea, to try: money now, less the bills due before payday, over the days left. */
-function TryTheMath() {
-  const [money, setMoney] = useState(12000);
-  const [bills, setBills] = useState(3500);
-  const [days, setDays] = useState(7);
-  const free = Math.max(0, money - bills);
-  const perDay = free / days;
-  const short = bills > money;
-
-  return (
-    <div className="rounded-2xl border border-line bg-surface p-5 sm:p-8 grid gap-8 md:grid-cols-2 md:items-center">
-      <div className="space-y-5">
-        <div className="space-y-1">
-          <h3 className="text-lg font-semibold text-fg tracking-tight">Try the math</h3>
-          <p className="text-sm text-muted leading-relaxed">The same idea Kaban runs on, with your own numbers.</p>
-        </div>
-        <Slider label="Money you have now" value={money} min={1000} max={50000} step={500} onChange={setMoney} format={peso} />
-        <Slider label="Bills due before payday" value={bills} min={0} max={20000} step={100} onChange={setBills} format={peso} />
-        <Slider label="Days until payday" value={days} min={1} max={15} step={1} onChange={setDays} format={(n) => `${n} ${n === 1 ? "day" : "days"}`} />
-      </div>
-
-      <div className="md:border-l md:border-line md:pl-8 space-y-4" aria-live="polite">
-        <p className="text-sm text-muted">Safe to spend</p>
-        <p className="text-5xl sm:text-6xl font-semibold tracking-tight text-fg tabular-nums">
-          {peso(perDay)}
-          <span className="text-lg font-normal text-muted"> / day</span>
-        </p>
-        {/* The days to payday, as in the app: today first, payday last */}
-        <div className="flex gap-1" aria-hidden>
-          {Array.from({ length: days }, (_, i) => (
-            <span key={i} className={`h-1.5 flex-1 rounded-full ${i === 0 ? "bg-fg" : "bg-line-strong"}`} />
-          ))}
-        </div>
-        <p className="text-sm text-muted leading-relaxed">
-          {short
-            ? `Bills are ${peso(bills - money)} more than you have. Kaban would show this before payday, not after.`
-            : `${peso(money)} less ${peso(bills)} held for bills, over ${days} ${days === 1 ? "day" : "days"}.`}
-        </p>
-      </div>
-    </div>
-  );
-}
-
 export default function KabanShowcase() {
   return (
     <section id="kaban" aria-labelledby="kaban-title" className="pt-4 lg:pt-6 lg:border-t lg:border-line space-y-10 lg:space-y-12">
@@ -249,7 +162,6 @@ export default function KabanShowcase() {
 
       <Phones />
       <Bento />
-      <TryTheMath />
     </section>
   );
 }
