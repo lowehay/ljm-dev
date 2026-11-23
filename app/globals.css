@@ -169,3 +169,11 @@ html {
     cursor: text;
   }
 }
+
+/* Sideways galleries that scroll by touch, without a scrollbar under them */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
