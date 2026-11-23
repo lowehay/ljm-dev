@@ -1,292 +1,136 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { ArrowRight, ArrowUpRight, Pause, Play } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { projects } from "../data";
 
-// The featured product, shown like a product page: the real app on a phone with a tab per
-// feature, then the app's main idea to try with your own numbers.
+// The featured product, shown like a product launch: three phones with the real app, a grid of
+// what it does (close-ups of the real screens), then the app's main idea to try.
 
 const kaban = projects.find((p) => p.caseStudy === "/projects/kaban")!;
 
-const STEPS = [
-  {
-    tab: "Safe to spend",
-    shot: "/kaban/home.webp",
-    title: "Know what you can spend today.",
-    text: "Kaban opens on one number: how much is safe to spend each day until payday, with the bills due before then already set aside.",
-    alt: "Kaban's Home screen showing ₱3,298 safe to spend per day, 7 days to the 30th, with ₱4,049 held for bills",
-  },
-  {
-    tab: "Logging",
-    shot: "/kaban/entry.webp",
-    title: "Log it before you forget it.",
-    text: "Amount first, on a number pad. Type 120+85 and it adds up, your usual categories are one tap away, and it shows what's left per day after this.",
-    alt: "Kaban's New entry sheet with 120+85 typed, totaling ₱205, and category chips below",
-  },
-  {
-    tab: "Accounts",
-    shot: "/kaban/accounts.webp",
-    title: "Every wallet in one place.",
-    text: "Banks, e-wallets and cash side by side, with transfers that don't count as spending and the balance after every entry.",
-    alt: "Kaban's Accounts screen listing GCash, BDO and Cash with their balances and net worth",
-  },
-  {
-    tab: "Bills",
-    shot: "/kaban/home2.webp",
-    title: "Bills, before they surprise you.",
-    text: "The next two weeks of bills and paydays at a glance, a reminder even with the app closed, and Pay in one tap.",
-    alt: "Kaban's recent activity grouped by day, and a two-week strip of upcoming bills and payday",
-  },
-  {
-    tab: "Reports",
-    shot: "/kaban/reports.webp",
-    title: "See where the month went.",
-    text: "Income, spending and what you kept, compared with the same days last month, by category and by pay period.",
-    alt: "Kaban's Reports screen for November with income, spent, net and a daily spending chart",
-  },
-  {
-    tab: "Goals",
-    shot: "/kaban/goals.webp",
-    title: "Save for what's next.",
-    text: "Goals with a plan to reach them, and a share of every payday can go to one automatically.",
-    alt: "Kaban's Goals screen with an emergency fund at 41% and a laptop fund at 21%",
-  },
-];
-
-const SLIDE_MS = 6000;
-
-function Phone({ src, alt, priority = false }: { src: string; alt: string; priority?: boolean }) {
+function Phone({ src, alt, sizes, priority = false }: { src: string; alt: string; sizes: string; priority?: boolean }) {
   return (
-    <div className="rounded-[2.6rem] border border-line-strong bg-black p-2.5">
-      <div className="overflow-hidden rounded-[2.05rem] aspect-[720/1465] relative bg-black">
-        <Image src={src} alt={alt} fill sizes="(min-width: 640px) 300px, 260px" className="object-cover object-top" priority={priority} draggable={false} />
+    <div className="rounded-[2.6rem] border border-line-strong bg-black p-2">
+      <div className="overflow-hidden rounded-[2.1rem] aspect-[720/1465] relative bg-black">
+        <Image src={src} alt={alt} fill sizes={sizes} className="object-cover object-top" priority={priority} />
       </div>
     </div>
   );
 }
 
 /**
- * The highlights: one phone, a caption, and a tab per feature. It moves on by itself (the active
- * tab fills up as it plays) and stops for good once the visitor takes over; it waits while hovered,
- * while off screen, or while the tab is hidden. Swipe the phone or use the arrow keys too.
+ * Three phones, the middle one in front. They're cut off by the line under them, like a product
+ * shot standing on a shelf. The two at the sides slide out from behind the middle one once.
  */
-function Highlights() {
-  const [active, setActive] = useState(0);
-  const [stopped, setStopped] = useState(false);
-  const [hover, setHover] = useState(false);
-  const [visible, setVisible] = useState(false);
-  const [dir, setDir] = useState(1);
+function Phones() {
   const reduce = useReducedMotion();
-  const root = useRef<HTMLDivElement>(null);
-  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  const list = useRef<(HTMLButtonElement | null)[]>([]);
-
-  useEffect(() => {
-    const el = root.current;
-    if (!el) return;
-    const io = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { threshold: 0.4 });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
-
-  // Keep the active tab in view in the row (it scrolls sideways on narrow phones)
-  useEffect(() => {
-    const t = tabs.current[active];
-    const row = t?.parentElement;
-    if (t && row) row.scrollTo({ left: t.offsetLeft - (row.clientWidth - t.offsetWidth) / 2, behavior: reduce ? "auto" : "smooth" });
-  }, [active, reduce]);
-
-  const go = (i: number, byHand = true) => {
-    const next = (i + STEPS.length) % STEPS.length;
-    // From the step asked for before wrapping around, so last → first still slides forward
-    setDir(i >= active ? 1 : -1);
-    setActive(next);
-    if (byHand) setStopped(true);
-  };
-  const playing = !stopped && !reduce;
-  const running = playing && !hover && visible;
-  const step = STEPS[active];
-
+  const side = (from: number) => ({
+    initial: reduce ? false : { x: from, opacity: 0 },
+    whileInView: { x: 0, opacity: 1 },
+    viewport: { once: true, amount: 0.3 },
+    transition: { duration: 0.9, delay: 0.15, ease: [0.22, 1, 0.36, 1] as const },
+  });
   return (
-    <div
-      ref={root}
-      className="flex flex-col items-center gap-8 lg:grid lg:grid-cols-[1fr_300px] lg:gap-20 lg:max-w-4xl lg:mx-auto lg:w-full" onPointerEnter={(e) => e.pointerType === "mouse" && setHover(true)}
-      onPointerLeave={(e) => e.pointerType === "mouse" && setHover(false)}>
-      <div className="relative w-[260px] sm:w-[300px] lg:order-2" id="kaban-screen" role="tabpanel" aria-label={step.tab}>
-        <AnimatePresence mode="popLayout" initial={false} custom={dir}>
-          <motion.div
-            key={step.shot}
-            custom={dir}
-            initial={reduce ? { opacity: 0 } : { opacity: 0, x: dir * 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={reduce ? { opacity: 0 } : { opacity: 0, x: dir * -40 }}
-            transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.25}
-            onDragEnd={(_, info) => {
-              if (info.offset.x < -50 || info.velocity.x < -400) go(active + 1);
-              else if (info.offset.x > 50 || info.velocity.x > 400) go(active - 1);
-            }}
-            className="cursor-grab active:cursor-grabbing touch-pan-y"
-          >
-            <Phone src={step.shot} alt={step.alt} priority={active === 0} />
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      <div className="lg:hidden min-h-[7.5rem] sm:min-h-[6.5rem] max-w-md text-center px-2">
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={step.title}
-            initial={{ opacity: 0, y: reduce ? 0 : 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-          >
-            <h3 className="text-2xl sm:text-3xl font-semibold tracking-tight text-fg">{step.title}</h3>
-            <p className="mt-2 text-sm sm:text-base leading-relaxed text-muted">{step.text}</p>
-          </motion.div>
-        </AnimatePresence>
-      </div>
-
-      <div className="lg:hidden flex items-center gap-2 max-w-full">
-        <div
-          role="tablist"
-          aria-label="Kaban features"
-          className="no-scrollbar flex gap-1 overflow-x-auto rounded-full border border-line bg-surface p-1"
-          onKeyDown={(e) => {
-            if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
-            e.preventDefault();
-            const raw = active + (e.key === "ArrowRight" ? 1 : -1);
-            go(raw);
-            tabs.current[(raw + STEPS.length) % STEPS.length]?.focus();
-          }}
-        >
-          {STEPS.map((s, i) => (
-            <button
-              key={s.tab}
-              ref={(el) => {
-                tabs.current[i] = el;
-              }}
-              type="button"
-              role="tab"
-              aria-selected={i === active}
-              aria-controls="kaban-screen"
-              tabIndex={i === active ? 0 : -1}
-              onClick={() => go(i)}
-              className={`relative shrink-0 overflow-hidden rounded-full h-9 px-4 text-sm whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg/40 ${
-                i === active ? "bg-canvas text-fg" : "text-muted hover:text-fg"
-              }`}
-            >
-              {/* The timer: the active tab fills while it plays, then the next one starts */}
-              {i === active && playing && (
-                <span
-                  key={active}
-                  aria-hidden
-                  className="kaban-progress absolute inset-y-0 left-0 bg-line"
-                  style={{ animationDuration: `${SLIDE_MS}ms`, animationPlayState: running ? "running" : "paused" }}
-                  onAnimationEnd={() => go(active + 1, false)}
-                />
-              )}
-              <span className="relative">{s.tab}</span>
-            </button>
-          ))}
+    <div className="relative -mx-6 sm:mx-0 overflow-hidden border-b border-line">
+      <div className="flex justify-center items-start pt-6 h-[380px] sm:h-[520px] lg:h-[600px]">
+        <motion.div {...side(90)} className="w-[150px] sm:w-[220px] lg:w-[250px] mt-14 sm:mt-20 -mr-8 sm:-mr-10 shrink-0">
+          <Phone src="/kaban/reports.webp" alt="Kaban's Reports screen: ₱18,000 income, ₱8,365 spent, and a daily spending chart" sizes="250px" />
+        </motion.div>
+        <div className="relative z-10 w-[190px] sm:w-[270px] lg:w-[310px] shrink-0">
+          <Phone
+            src="/kaban/home.webp"
+            alt="Kaban's Home screen: ₱3,298 safe to spend per day, 7 days to the 30th, with ₱4,049 held for bills"
+            sizes="310px"
+            priority
+          />
         </div>
-        {!reduce && <PlayPause stopped={stopped} onToggle={() => setStopped(!stopped)} />}
-      </div>
-
-      {/* Wide screens: the features as a list beside the phone; the open one shows its line */}
-      <div className="hidden lg:block lg:order-1">
-        <div
-          role="tablist"
-          aria-label="Kaban features"
-          aria-orientation="vertical"
-          className="border-l border-line"
-          onKeyDown={(e) => {
-            if (e.key !== "ArrowDown" && e.key !== "ArrowUp") return;
-            e.preventDefault();
-            const raw = active + (e.key === "ArrowDown" ? 1 : -1);
-            go(raw);
-            list.current[(raw + STEPS.length) % STEPS.length]?.focus();
-          }}
-        >
-          {STEPS.map((s, i) => {
-            const on = i === active;
-            return (
-              <div key={s.tab} className="relative">
-                {/* The timer: a line down the side of the open feature */}
-                {on && (
-                  <span aria-hidden className="absolute -left-px top-0 bottom-0 w-px bg-line-strong">
-                    {playing ? (
-                      <span
-                        key={active}
-                        className="kaban-progress-y absolute inset-x-0 top-0 bg-fg"
-                        style={{ animationDuration: `${SLIDE_MS}ms`, animationPlayState: running ? "running" : "paused" }}
-                        onAnimationEnd={() => go(active + 1, false)}
-                      />
-                    ) : (
-                      <span className="absolute inset-0 bg-fg" />
-                    )}
-                  </span>
-                )}
-                <button
-                  ref={(el) => {
-                    list.current[i] = el;
-                  }}
-                  type="button"
-                  role="tab"
-                  aria-selected={on}
-                  aria-controls="kaban-screen"
-                  tabIndex={on ? 0 : -1}
-                  onClick={() => go(i)}
-                  className={`block w-full text-left pl-6 pr-2 py-3 text-xl font-semibold tracking-tight transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg/40 rounded-sm ${
-                    on ? "text-fg" : "text-line-strong hover:text-muted"
-                  }`}
-                >
-                  {s.title}
-                </button>
-                <AnimatePresence initial={false}>
-                  {on && (
-                    <motion.p
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: reduce ? 0 : 0.35, ease: [0.22, 1, 0.36, 1] }}
-                      className="overflow-hidden pl-6 pr-2 text-base leading-relaxed text-muted"
-                    >
-                      <span className="block pb-4">{s.text}</span>
-                    </motion.p>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
-        </div>
-        {!reduce && (
-          <div className="mt-6 pl-6">
-            <PlayPause stopped={stopped} onToggle={() => setStopped(!stopped)} />
-          </div>
-        )}
+        <motion.div {...side(-90)} className="w-[150px] sm:w-[220px] lg:w-[250px] mt-14 sm:mt-20 -ml-8 sm:-ml-10 shrink-0">
+          <Phone src="/kaban/goals.webp" alt="Kaban's Goals screen: an emergency fund at 41% and a laptop fund at 21%" sizes="250px" />
+        </motion.div>
       </div>
     </div>
   );
 }
 
-function PlayPause({ stopped, onToggle }: { stopped: boolean; onToggle: () => void }) {
+/** One tile of the grid: a heading, a line, and optionally a close-up of the real screen. */
+function Tile({
+  title,
+  text,
+  shot,
+  className = "",
+  side = false,
+}: {
+  title: string;
+  text: string;
+  shot?: { src: string; alt: string; w: number; h: number };
+  className?: string;
+  /** Wide tiles: the words on the left, the close-up on the right. */
+  side?: boolean;
+}) {
   return (
-    <button
-      type="button"
-      onClick={onToggle}
-      aria-label={stopped ? "Play the tour" : "Pause the tour"}
-      className="shrink-0 grid place-items-center size-11 rounded-full border border-line bg-surface text-fg-soft hover:text-fg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fg/40"
-    >
-      {stopped ? <Play className="size-4" /> : <Pause className="size-4" />}
-    </button>
+    <div className={`rounded-3xl border border-line bg-surface p-6 sm:p-7 flex flex-col gap-5 ${side ? "md:flex-row md:items-center md:gap-8" : ""} ${className}`}>
+      <div className={`space-y-1.5 ${side ? "md:w-2/5 md:shrink-0" : ""}`}>
+        <h3 className="text-xl sm:text-2xl font-semibold tracking-tight text-fg">{title}</h3>
+        <p className="text-sm sm:text-base leading-relaxed text-muted max-w-md">{text}</p>
+      </div>
+      {shot && (
+        <div className={`overflow-hidden rounded-2xl border border-line bg-[#0c0c0e] ${side ? "md:flex-1" : "mt-auto"}`}>
+          <Image src={shot.src} alt={shot.alt} width={shot.w} height={shot.h} sizes="(min-width: 768px) 400px, 100vw" className="w-full h-auto" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** A tile with one big figure or phrase instead of a picture. */
+function Fact({ big, text, className = "" }: { big: string; text: string; className?: string }) {
+  return (
+    <div className={`rounded-3xl border border-line bg-surface p-6 sm:p-7 flex flex-col justify-between gap-6 ${className}`}>
+      <p className="text-3xl sm:text-4xl font-semibold tracking-tight text-fg">{big}</p>
+      <p className="text-sm leading-relaxed text-muted">{text}</p>
+    </div>
+  );
+}
+
+function Bento() {
+  return (
+    <div className="grid gap-4 md:grid-cols-6">
+      <Tile
+        className="md:col-span-4"
+        side
+        title="Safe to spend, every day."
+        text="Money in every account, less the bills due before payday, over the days left. The strip shows the pay period: days gone, today, bills and payday."
+        shot={{ src: "/kaban/card-safe.webp", alt: "Kaban's safe to spend card: ₱3,298 a day, 7 days to the 30th, ₱4,049 for bills", w: 900, h: 381 }}
+      />
+      <Fact className="md:col-span-2" big="Works offline" text="Entries made without a signal wait on the phone and sync when it's back, never saved twice." />
+      <Tile
+        className="md:col-span-2 md:row-span-2"
+        title="Log it in seconds."
+        text="Amount first, on a keypad. 120+85 adds up as you type, and you see what's left per day before you save."
+        shot={{ src: "/kaban/card-entry.webp", alt: "Kaban's amount keypad with 120+85 typed, totaling ₱205", w: 900, h: 714 }}
+      />
+      <Tile
+        className="md:col-span-4"
+        side
+        title="Bills and paydays, two weeks ahead."
+        text="What's due before the next payday is set aside on its own. A reminder comes even with the app closed, and Pay is one tap."
+        shot={{ src: "/kaban/card-bills.webp", alt: "Kaban's bills: the next two weeks with Internet due on the 26th, Electricity on the 28th, and payday on the 30th", w: 900, h: 746 }}
+      />
+      <Tile
+        className="md:col-span-4"
+        side
+        title="Every wallet in one place."
+        text="Banks, e-wallets and cash side by side. Moving money between them is a transfer, so it never counts as spending."
+        shot={{ src: "/kaban/card-accounts.webp", alt: "Kaban's accounts: GCash, BDO and Cash with their balances", w: 900, h: 524 }}
+      />
+      <Fact className="md:col-span-2" big="Installs like an app" text="Add it to the home screen. It opens fast, locks with a PIN or Face ID, and sends bill reminders." />
+      <Fact className="md:col-span-2" big="Reads receipts" text="Snap a receipt and AI fills in the amount and category for you to check. The photo is never stored." />
+      <Fact className="md:col-span-2" big="~175 tests" text="The money logic is tested in the database, and the app on a phone-sized screen, on every change." />
+    </div>
   );
 }
 
@@ -373,7 +217,7 @@ function TryTheMath() {
 
 export default function KabanShowcase() {
   return (
-    <section id="kaban" aria-labelledby="kaban-title" className="pt-4 lg:pt-6 lg:border-t lg:border-line space-y-12 lg:space-y-6">
+    <section id="kaban" aria-labelledby="kaban-title" className="pt-4 lg:pt-6 lg:border-t lg:border-line space-y-10 lg:space-y-12">
       <header className="space-y-5 text-center max-w-2xl mx-auto lg:pt-10">
         <span className="text-xs font-mono uppercase tracking-wider text-muted">Featured product · {kaban.category}</span>
         <h2 id="kaban-title" className="text-5xl sm:text-7xl font-bold tracking-tight text-fg">
@@ -403,7 +247,8 @@ export default function KabanShowcase() {
         </div>
       </header>
 
-      <Highlights />
+      <Phones />
+      <Bento />
       <TryTheMath />
     </section>
   );
