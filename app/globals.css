@@ -177,3 +177,23 @@ html {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Kaban highlights: the active tab fills as its screen plays */
+@keyframes kaban-progress {
+  from { width: 0%; }
+  to { width: 100%; }
+}
+.kaban-progress {
+  animation-name: kaban-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+@keyframes kaban-progress-y {
+  from { height: 0%; }
+  to { height: 100%; }
+}
+.kaban-progress-y {
+  animation-name: kaban-progress-y;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
