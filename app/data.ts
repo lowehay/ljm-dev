@@ -45,6 +45,14 @@ export const workSteps = [
 
 export const projects: Project[] = [
   {
+    title: "Kaban",
+    category: "Personal Finance App",
+    desc: "Phone-first money app for the Philippines that answers one question up front: how much can I safely spend each day until payday? It tracks accounts, bills, savings goals and paydays in pesos, installs like a native app, keeps working offline, and reads receipts with AI.",
+    tech: ["Next.js", "TypeScript", "Supabase", "PostgreSQL", "Tailwind CSS", "Gemini", "Playwright"],
+    live: "https://kaban-ph.vercel.app",
+    caseStudy: "/projects/kaban",
+  },
+  {
     title: "Coffee Shop Management System",
     category: "Full-Stack Application",
     desc: "Café management system covering orders, products, customers, and ingredient inventory. Selling a drink deducts its recipe's ingredients from stock automatically, with low-stock tracking and a sales dashboard.",
