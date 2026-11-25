@@ -90,7 +90,7 @@ export default function KabanCaseStudy() {
             <p>
               The database functions are tested against an in-memory Postgres, so a change to how balances move is
               checked before it ships. Playwright runs the app on a phone-sized screen against a local Supabase,
-              covering flows like logging offline, paying a bill, and marking pay received. About 175 automated tests
+              covering flows like logging offline, paying a bill, and marking pay received. 180 automated tests
               run on every pull request.
             </p>
           </Decision>
