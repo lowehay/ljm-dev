@@ -39,6 +39,7 @@ type Command = {
 
 const SECTIONS = [
   { id: "home", label: "Home" },
+  { id: "kaban", label: "Kaban (featured product)" },
   { id: "services", label: "Services" },
   { id: "projects", label: "Projects" },
   { id: "experience", label: "Experience" },
