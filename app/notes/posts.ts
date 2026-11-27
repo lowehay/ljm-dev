@@ -11,6 +11,24 @@ export type Post = {
 
 export const posts: Post[] = [
   {
+    slug: "offline-saves-without-duplicates",
+    title: "Saving offline without saving twice",
+    summary:
+      "My finance app keeps working without a signal and sends entries later. The hard part was making sure a retried save never counts the same expense twice.",
+    date: "2026-11-27",
+    readMinutes: 4,
+    tags: ["Offline", "PostgreSQL", "Supabase"],
+  },
+  {
+    slug: "tests-fail-only-on-ci",
+    title: "A test that failed only on the CI server",
+    summary:
+      "Every test passed on my laptop and one failed on GitHub Actions. The server ran on UTC while my app counts days in Manila time.",
+    date: "2026-11-27",
+    readMinutes: 3,
+    tags: ["Testing", "Playwright", "CI"],
+  },
+  {
     slug: "smooth-scroll-stops-halfway",
     title: "Why my navbar link stopped scrolling halfway",
     summary:
