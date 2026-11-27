@@ -78,7 +78,11 @@ export default function ResumePage() {
                 <h4 className="text-sm font-semibold text-fg">{r.role}</h4>
                 <span className="text-xs font-mono text-muted">{r.period}</span>
               </div>
-              <p className="text-sm leading-relaxed mt-1">{r.desc}</p>
+              <ul className="text-sm leading-relaxed mt-1 space-y-0.5 list-disc pl-4 marker:text-line-strong">
+                {r.bullets.map((b) => (
+                  <li key={b}>{b}</li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>

@@ -27,7 +27,11 @@ export default function Experience() {
               </span>
             </div>
             <h4 className="text-base font-semibold text-fg tracking-tight">{exp.role}</h4>
-            <p className="text-sm text-muted leading-relaxed">{exp.desc}</p>
+            <ul className="text-sm text-muted leading-relaxed space-y-1 list-disc pl-4 marker:text-line-strong">
+              {exp.bullets.map((b) => (
+                <li key={b}>{b}</li>
+              ))}
+            </ul>
           </div>
         ))}
       </div>

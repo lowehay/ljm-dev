@@ -108,13 +108,15 @@ export default function ChatHandoff({ messages, canSend }: { messages: Message[]
           disabled={pending}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-fg text-canvas text-xs font-medium hover:opacity-85 transition disabled:opacity-50"
         >
-          <StatusMark
-            status={pending ? "running" : state.status === "error" ? "failed" : "pending"}
-            size={13}
-            strokeWidth={1.75}
-            doneColor="currentColor"
-            errorColor="currentColor"
-          />
+          {(pending || state.status === "error") && (
+            <StatusMark
+              status={pending ? "running" : "failed"}
+              size={13}
+              strokeWidth={1.75}
+              doneColor="currentColor"
+              errorColor="currentColor"
+            />
+          )}
           {pending ? "Sending..." : "Send to Louie"}
         </button>
         <button type="button" onClick={() => setOpen(false)} className="text-xs text-muted hover:text-fg transition">

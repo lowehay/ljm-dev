@@ -25,11 +25,11 @@ export default function Footer() {
     <Section id="contact" index="07" title="Contact" as="footer" className="space-y-6 pt-4 lg:pt-0">
       <div className="space-y-2">
         <h3 className="text-xl font-bold text-fg">
-          <ShinyText>Let&apos;s build something great together.</ShinyText>
+          <ShinyText>Have a project in mind?</ShinyText>
         </h3>
         <p className="text-sm text-muted leading-relaxed">
           {contactFormEnabled
-            ? "Tell me what you're working on and I'll get back to you soon."
+            ? `Tell me what you're working on and I'll get back to you soon. ${site.workingHours}`
             : "For freelance inquiries, full-stack collabs, or general questions, feel free to reach out directly via email."}
         </p>
         <p className="text-sm text-muted">

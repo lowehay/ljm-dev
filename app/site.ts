@@ -16,7 +16,9 @@ export const site = {
   email: "louiejaemaravillosa24@gmail.com",
   github: "https://github.com/lowehay",
   // Status line above the name in the hero; empty hides it
-  availability: "Available for freelance work",
+  availability: "Available part-time · evenings",
+  // When I work, in full: shown in the Contact section and given to the AI chat; empty hides it
+  workingHours: "I work part-time, on evenings Philippine time (UTC+8), which overlaps with US mornings.",
   // How soon you reply, shown under the contact form and the scoper/chat send buttons; the AI chat repeats it
   replyWithin: "within 24 hours",
   linkedin: "https://www.linkedin.com/in/louie-jae-maravillosa-a5128a449",
