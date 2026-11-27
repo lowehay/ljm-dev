@@ -314,7 +314,140 @@ geometry.applyMatrix4(node.matrixWorld); // safe now
   );
 }
 
+function OfflineSavesWithoutDuplicates() {
+  return (
+    <>
+      <P>
+        Kaban, my personal finance app, has to work where the signal doesn&apos;t: on a jeepney, in a basement, on a
+        weak connection. If you log an expense without internet, it waits on the phone and is sent when you&apos;re
+        back online. That part is easy. The hard part is that a connection can drop at the worst moment.
+      </P>
+
+      <H2>How a save gets counted twice</H2>
+      <P>
+        Picture this: the phone sends &quot;₱100, coffee&quot;. The server saves it and subtracts ₱100 from your balance,
+        but the connection drops before the reply comes back. From the phone&apos;s side, the save failed, so it keeps
+        the entry and tries again later. Now the server saves it a second time, and your balance is ₱100 lower than it
+        should be.
+      </P>
+      <P>
+        In a to-do app that&apos;s an annoying duplicate. In a money app it&apos;s a wrong balance, and people stop
+        trusting the app the first time they notice.
+      </P>
+
+      <H2>The fix: the phone names each save</H2>
+      <P>
+        Every entry gets a random ID on the phone, before anything is sent. The ID goes with the entry on every attempt,
+        and the database refuses to store the same ID twice:
+      </P>
+      <Code label="Migration">{`
+alter table transactions add column client_id uuid;
+create unique index transactions_client_id_key
+  on transactions (client_id) where client_id is not null;
+`}</Code>
+      <P>
+        Each money action (logging an expense, a transfer, paying a bill) is a database function that runs as one
+        transaction. It first checks whether that ID was already saved, and if so it returns the existing entry instead of
+        saving a new one:
+      </P>
+      <Code label="Inside each money function">{`
+if p_client_id is not null then
+  select * into t from transactions where client_id = p_client_id;
+  if found then
+    return t;  -- already saved: a retry changes nothing
+  end if;
+end if;
+`}</Code>
+      <P>
+        So a retry is always safe. The phone can send the same entry as many times as it needs to, and the balance moves
+        once. Deletes get the same care: if a retried delete finds the entry already gone, that counts as success, because
+        the first attempt worked before the connection dropped.
+      </P>
+
+      <H2>Proving it</H2>
+      <P>
+        Money logic shouldn&apos;t rely on &quot;it looks right&quot;. A test runs the database functions directly, saves
+        the same entry twice with the same ID, and checks that the balance changed only once:
+      </P>
+      <Code label="db.test.mjs">{`
+test('the same client id is only ever saved once', async () => {
+  const first = await logEntry(account, 100, 'Coffee', clientId)
+  const retry = await logEntry(account, 100, 'Coffee', clientId)
+  assert.equal(retry.id, first.id)
+  assert.equal(await balance(account), before - 100)
+})
+`}</Code>
+      <P>
+        The same check covers transfers, bill payments, savings goals, and money lent to friends. Together with the rest
+        of the suite, it runs automatically on every pull request.
+      </P>
+      <List
+        items={[
+          "Any save that can be retried needs to be safe to repeat. Decide that up front, not after the first duplicate.",
+          "Let the client name the record, and let the database enforce that the name is unique. That beats checking for duplicates after the fact.",
+          "Test the retry itself: send the same thing twice and check the result changed once.",
+        ]}
+      />
+    </>
+  );
+}
+
+function TestsFailOnlyOnCI() {
+  return (
+    <>
+      <P>
+        Kaban&apos;s tests run on GitHub Actions before anything is merged. One day every test passed on my laptop, and
+        one failed on the server. Same code, same tests, different result.
+      </P>
+
+      <H2>What was different</H2>
+      <P>
+        The failing test checked the Reports screen, which compares this month so far with the same days of last month:
+        on the 25th, it compares the 1st to the 25th of both months. The app works out &quot;today&quot; in Manila time,
+        because that&apos;s where its users are. The test worked out &quot;today&quot; too, to decide which entries to
+        add and what totals to expect.
+      </P>
+      <P>
+        On my laptop, both used Manila time. The GitHub server runs on UTC, which is 8 hours behind. So before 8 AM in
+        Manila, the app thought it was the 25th while the test thought it was the 24th. The app compared one more day of
+        last month than the test expected, and the totals didn&apos;t match.
+      </P>
+
+      <H2>The fix</H2>
+      <P>
+        The tests should see the same &quot;today&quot; as the app, wherever they run. One line in the test settings
+        sets the time zone for the test run and every worker it starts:
+      </P>
+      <Code label="playwright.config.ts">{`
+// The test code works out "today" too (due days, paydays, this month): on Manila time
+// like the app, even on a machine that runs on UTC (CI), where the date is a day behind
+// until 8 AM Manila. Workers inherit it.
+process.env.TZ = "Asia/Manila";
+`}</Code>
+      <P>
+        I also changed the Reports test to ask for Manila&apos;s date directly, the same way the app does, instead of
+        trusting the machine&apos;s clock.
+      </P>
+
+      <H2>Result</H2>
+      <P>
+        The tests pass on my laptop and on GitHub at any hour, which is the point of running them on a server: a test that
+        only passes on one machine isn&apos;t testing much.
+      </P>
+      <List
+        items={[
+          "If a test fails only on CI, check what differs between the machines first: time zone, locale, and speed are the usual suspects.",
+          "Anything that depends on \"today\" needs one source of truth that the app and its tests both use.",
+          "Date bugs hide near midnight and month boundaries. That's exactly when they show up for real users.",
+        ]}
+      />
+    </>
+  );
+}
+
 export const bodies: Record<string, () => React.JSX.Element> = {
+  "offline-saves-without-duplicates": OfflineSavesWithoutDuplicates,
+  "tests-fail-only-on-ci": TestsFailOnlyOnCI,
   "smooth-scroll-stops-halfway": SmoothScrollStopsHalfway,
   "shrinking-a-3d-model": ShrinkingA3DModel,
   "webgl-without-a-gpu": WebGLWithoutAGPU,

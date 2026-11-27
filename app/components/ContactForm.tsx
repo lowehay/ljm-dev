@@ -71,14 +71,16 @@ export default function ContactForm({
           disabled={pending}
           className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-accent text-canvas text-xs font-mono font-medium hover:opacity-80 transition disabled:opacity-50"
         >
-          {/* Idle ring, then a spinning arc while sending, then a check (or a cross if it failed) */}
-          <StatusMark
-            status={pending ? "running" : state.status === "sent" ? "done" : state.status === "error" ? "failed" : "pending"}
-            size={14}
-            strokeWidth={1.75}
-            doneColor="currentColor"
-            errorColor="currentColor"
-          />
+          {/* Nothing at rest (an idle ring read as a loading spinner); a spinning arc while sending, then a check or a cross */}
+          {(pending || state.status === "sent" || state.status === "error") && (
+            <StatusMark
+              status={pending ? "running" : state.status === "sent" ? "done" : "failed"}
+              size={14}
+              strokeWidth={1.75}
+              doneColor="currentColor"
+              errorColor="currentColor"
+            />
+          )}
           <span>{pending ? "Sending..." : state.status === "sent" ? "Sent" : submitLabel}</span>
         </button>
         <p aria-live="polite" className={`text-xs font-mono ${state.status === "error" ? "text-fg" : "text-muted"}`}>

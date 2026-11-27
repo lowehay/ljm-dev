@@ -37,7 +37,7 @@ export default function KabanCaseStudy() {
         <List
           items={[
             "Safe to spend per day: total money minus the bills due before the next payday, divided by the days left, with a strip showing the days of the pay period",
-            "Accounts for banks, e-wallets and cash, with transfers between them and the running balance after each entry",
+            "Accounts for banks, e-wallets and cash, in your own order, with transfers between them and the running balance after each entry",
             "Fast logging: amounts that add up as you type (120+85), your most-used categories as chips, recent entries in one tap, Save & add another, and one-tap favorites with Undo",
             "Recurring income with paydays that follow weekend rules, logged automatically or confirmed with Received when pay comes late",
             "Bills with due dates, loans and installments with progress, a calendar of paydays and bills, and push reminders even when the app is closed",
@@ -95,16 +95,6 @@ export default function KabanCaseStudy() {
             </p>
           </Decision>
         </div>
-      </Section>
-
-      <Section title="What I'd do next">
-        <List
-          items={[
-            "Let people put their accounts and goals in their own order",
-            "Shared budgets for couples and families, with each person still seeing only what's shared",
-            "Import statements from banks and e-wallets instead of logging every entry by hand",
-          ]}
-        />
       </Section>
     </CaseStudyPage>
   );

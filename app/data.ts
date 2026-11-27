@@ -90,24 +90,36 @@ export const company = {
   summary: "Trainee to full-stack developer in 10 months",
 };
 
+// Each role as short bullets, matching the résumé PDF
 export const roles = [
   {
     period: "July 2024 — Present",
     role: "Front-End & Full-Stack Developer",
     badge: "Full-time",
-    desc: "Leading the front end of the company's school platforms (LMS and records system), including a design system I built from scratch in plain CSS and JavaScript, and front-end initiatives with React, Next.js, and TypeScript while managing full-stack features. In addition to core web development, I perform data analysis for internal decision-making and handle server deployments across cloud environments.",
+    bullets: [
+      "Lead the front end of the company's school platforms, a learning management system and a student records system that together serve 5,000+ users.",
+      "Built the platforms' design system from scratch in plain CSS and JavaScript.",
+      "Lead front-end initiatives with React, Next.js, and TypeScript while building full-stack features.",
+      "Perform data analysis for internal decisions and handle server deployments across cloud environments.",
+    ],
   },
   {
     period: "Feb 2024 — July 2024",
     role: "Junior Web Developer",
     badge: "Contract",
-    desc: "Developed and maintained full-stack web applications using React and Django. Collaborated on UI/UX enhancements and implemented responsive designs across multiple client and internal projects.",
+    bullets: [
+      "Developed and maintained full-stack web applications with React and Django.",
+      "Improved UI/UX and implemented responsive designs across client and internal projects.",
+    ],
   },
   {
     period: "Sept 2023 — Jan 2024",
     role: "Full Stack Developer Trainee",
     badge: "Internship",
-    desc: "Completed comprehensive training in full-stack web development. Gained hands-on experience building dynamic components with React, handling PHP backends, and managing relational databases for real production projects.",
+    bullets: [
+      "Completed full-stack training on real production projects.",
+      "Built React components, PHP backends, and relational databases.",
+    ],
   },
 ];
 
@@ -120,11 +132,11 @@ export const education = {
 export const stackCategories = [
   {
     category: "Frontend",
-    skills: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Vite", "Bootstrap"],
+    skills: ["React", "Next.js", "TypeScript", "Tailwind CSS", "Framer Motion", "Three.js", "Vite", "Bootstrap"],
   },
   {
     category: "Backend",
-    skills: ["Python", "Django", "Django REST Framework", "PHP", "Laravel", "CodeIgniter"],
+    skills: ["Python", "Django", "Django REST Framework", "Supabase", "PHP", "Laravel", "CodeIgniter"],
   },
   {
     category: "Database",
@@ -132,7 +144,7 @@ export const stackCategories = [
   },
   {
     category: "DevOps & Tools",
-    skills: ["Git", "Vercel", "Render", "Linux (Ubuntu)", "Nginx"],
+    skills: ["Git", "GitHub Actions", "Playwright", "Vercel", "Render", "Linux (Ubuntu)", "Nginx"],
   },
   {
     category: "AI",

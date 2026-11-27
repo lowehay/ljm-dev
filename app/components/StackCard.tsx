@@ -1,6 +1,6 @@
 "use client";
 
-import { Braces, Sparkles } from "lucide-react";
+import { Braces, FlaskConical, Sparkles } from "lucide-react";
 import BorderGlow from "./BorderGlow/BorderGlow";
 import { STACK_ICONS } from "./stackIcons";
 import { useTheme } from "./useTheme";
@@ -9,6 +9,7 @@ import { useTheme } from "./useTheme";
 const FALLBACK_ICONS: Record<string, typeof Sparkles> = {
   "LLM APIs": Braces,
   "Prompt Engineering": Sparkles,
+  Playwright: FlaskConical,
 };
 
 // One technology as a compact chip: logo and name, only as wide as its content,
